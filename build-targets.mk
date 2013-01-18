@@ -1,5 +1,5 @@
 # main project target
-TARGETS := main
+TARGETS := main terminal
 
 define make-goal
 $(BUILD_PATH)/$1.o: $(SRCROOT)/$1.cpp
