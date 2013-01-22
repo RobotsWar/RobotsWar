@@ -1,12 +1,21 @@
-build/
-doxygen/xml/
-doxygen/html/
-main.cpp
-libmaple.layout
-tags
-TAGS
+# LibMaple
+LibMaple/build/
+LibMaple/doxygen/xml/
+LibMaple/doxygen/html/
+LibMaple/main.cpp
+LibMaple/libmaple.layout
+LibMaple/tags
+LibMaple/TAGS
+
+# Generated files
 *~
 *.swp
-arm
 cscope*
 .gdbinit
+
+# src
+src/*
+# Except src
+!src/Makefile
+!src/build-targets.mk
+
