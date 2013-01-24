@@ -35,7 +35,7 @@ ASFLAGS  = $(GLOBAL_ASFLAGS) $(TGT_ASFLAGS)
 # the toolchain. The default specifies no extra libraries, but it can
 # be overridden.
 LD_TOOLCHAIN_PATH := $(LDDIR)/toolchains/generic
-ifneq ($(findstring ARM/embedded,$(shell $(CC) --version)),)
+ifneq ($(findstring ARM/embedded,$(shell export PATH=$(PATH); $(CC) --version)),)
 # GCC ARM Embedded, https://launchpad.net/gcc-arm-embedded/
 LD_TOOLCHAIN_PATH := $(LDDIR)/toolchains/gcc-arm-embedded
 endif
