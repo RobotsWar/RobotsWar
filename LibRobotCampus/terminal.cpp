@@ -139,15 +139,27 @@ void terminal_tick()
         input = SerialIO->read();
         c = (char)input;
 
+        //Return key
         if (c == '\r' || c == '\n') {
             terminal_buffer[terminal_pos] = '\0';
             terminal_process();
+        //Back key
         } else if (c == '\x7f') {
             if (terminal_pos > 0) {
                 terminal_pos--;
                 terminal_size--;
                 SerialIO->print("\x8 \x8");
             }
+        //Special key
+        } else if (c == '\x1b') {
+            char code[2];
+            if (SerialIO->available()) {
+                code[0] = SerialIO->read();
+                if (SerialIO->available()) {
+                    code[1] = SerialIO->read();
+                }
+            }
+        //Others
         } else {
             terminal_buffer[terminal_pos] = c;
             SerialIO->print(c);
@@ -164,10 +176,10 @@ void terminal_tick()
 }
 
 /**
- * Returns Printer instance enabling user's command
- * to write on serial port
+ * Returns Print and Read instance enabling user's command
+ * to write and read on serial port
  */
-Print* terminal_io()
+Serial* terminal_io()
 {
     return SerialIO;
 }

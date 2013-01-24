@@ -61,10 +61,10 @@ void terminal_init(Serial *serial);
 void terminal_tick();
 
 /**
- * Returns the Print instance used 
+ * Returns the Print and Read instance used 
  * to write on the serial port
  */
-Print* terminal_io();
+Serial* terminal_io();
 
 
 /**
