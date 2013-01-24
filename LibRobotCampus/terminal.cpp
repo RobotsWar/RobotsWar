@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <wirish/wirish.h>
 #include "terminal.h"
 
 static char terminal_buffer[TERMINAL_BUFFER_SIZE];
@@ -13,6 +12,8 @@ static unsigned int terminal_pos = 0;
 static const struct terminal_command *terminal_commands[TERMINAL_MAX_COMMANDS];
 
 static unsigned int terminal_command_count = 0;
+
+static Serial *SerialIO = 0;
 
 /**
  * Registers a command
@@ -29,27 +30,25 @@ TERMINAL_COMMAND(help, "Displays the help about commands")
 {
     unsigned int i;
 
-    SerialUSB.println("Available commands :");
-    SerialUSB.println();
+    terminal_io()->println("Available commands :");
+    terminal_io()->println();
 
     for (i=0; i<terminal_command_count; i++) {
         const struct terminal_command *command = terminal_commands[i];
 
-        SerialUSB.print(command->name);
-        SerialUSB.print(": ");
-        SerialUSB.print(command->description);
-        SerialUSB.println();
+        terminal_io()->print(command->name);
+        terminal_io()->print(": ");
+        terminal_io()->print(command->description);
+        terminal_io()->println();
     }
 }
 
+/**
+ * Write the terminal prompt
+ */
 void terminal_prompt()
 {
-    SerialUSB.print("$ ");
-}
-
-void terminal_init()
-{
-    terminal_prompt();
+    SerialIO->print(TERMINAL_PROMPT);
 }
 
 /***
@@ -72,11 +71,11 @@ void terminal_execute(char *command_name, unsigned int command_name_length, char
     }
 
     if (!command_found) {
-        SerialUSB.print("Unknwon command: ");
+        SerialIO->print("Unknwon command: ");
         for (i=0; i<command_name_length; i++) {
-            SerialUSB.print((char)terminal_buffer[i]);
+            SerialIO->print((char)terminal_buffer[i]);
         }
-        SerialUSB.println();
+        SerialIO->println();
     }
 }
 
@@ -88,7 +87,7 @@ void terminal_process()
     char *saveptr ,*parameters;
     unsigned int command_name_length;
     
-    SerialUSB.println();
+    SerialIO->println();
 
     strtok_r(terminal_buffer, " ", &saveptr);
     parameters = strtok_r(NULL, " ", &saveptr);
@@ -113,16 +112,31 @@ void terminal_process()
 }
 
 /**
- * Ticking the terminal, this will cause lookup for characters and eventually
- * a call to the process function on new lines
+ * Save the Serial object globaly
+ */
+void terminal_init(Serial *serial)
+{
+    if (serial != 0) {
+        SerialIO = serial;
+    }
+    terminal_prompt();
+}
+
+/**
+ * Ticking the terminal, this will cause lookup for characters 
+ * and eventually a call to the process function on new lines
  */
 void terminal_tick()
 {
+    if (SerialIO == 0) {
+        return;
+    }
+
     char c;
     uint8 input;
 
-    while (SerialUSB.available()) {
-        input = SerialUSB.read();
+    while (SerialIO->available()) {
+        input = SerialIO->read();
         c = (char)input;
 
         if (c == '\r' || c == '\n') {
@@ -132,11 +146,11 @@ void terminal_tick()
             if (terminal_pos > 0) {
                 terminal_pos--;
                 terminal_size--;
-                SerialUSB.print("\x8 \x8");
+                SerialIO->print("\x8 \x8");
             }
         } else {
             terminal_buffer[terminal_pos] = c;
-            SerialUSB.print(c);
+            SerialIO->print(c);
 
             if (terminal_pos < TERMINAL_BUFFER_SIZE-1) {
                 terminal_pos++;
@@ -148,3 +162,13 @@ void terminal_tick()
         }
     }
 }
+
+/**
+ * Returns Printer instance enabling user's command
+ * to write on serial port
+ */
+Print* terminal_io()
+{
+    return SerialIO;
+}
+
