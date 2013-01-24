@@ -32,12 +32,14 @@
 #define _WIRISH_USB_SERIAL_H_
 
 #include <wirish/Print.h>
+#include <wirish/Read.h>
+#include <wirish/Serial.h>
 #include <wirish/boards.h>
 
 /**
  * @brief Virtual serial terminal.
  */
-class USBSerial : public Print {
+class USBSerial : public Serial {
 public:
     USBSerial(void);
 
