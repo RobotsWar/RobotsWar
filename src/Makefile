@@ -4,6 +4,7 @@
 
 ## Local configuration
 LIB_MAPLE_HOME = ../LibMaple
+LIB_ROBOT_HOME = ../LibRobotCampus
 PATH := $(PATH):$(CURDIR)/../BinutilsArm/bin
 
 ##
@@ -89,6 +90,9 @@ ifneq ($(USER_MODULES),)
 LIBMAPLE_MODULES += $(USER_MODULES)
 endif
 
+# Robot Campus Lib
+LIBMAPLE_MODULES += $(LIB_ROBOT_HOME)
+
 # Call each module's rules.mk:
 $(foreach m,$(LIBMAPLE_MODULES),$(eval $(call LIBMAPLE_MODULE_template,$(m))))
 
@@ -128,7 +132,7 @@ endif
 sketch: build-check MSG_INFO $(BUILD_PATH)/$(BOARD).bin
 
 clean:
-	rm -rf build LibMaple
+	rm -rf build LibMaple LibRobotCampus
 
 mrproper: clean
 	rm -rf doxygen
