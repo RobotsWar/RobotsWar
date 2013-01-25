@@ -5,8 +5,6 @@
 
 static char terminal_buffer[TERMINAL_BUFFER_SIZE];
 
-static unsigned int terminal_size = 0;
-
 static unsigned int terminal_pos = 0;
 
 static const struct terminal_command *terminal_commands[TERMINAL_MAX_COMMANDS];
@@ -107,7 +105,6 @@ void terminal_process()
     }
 
     terminal_pos = 0;
-    terminal_size = 0;
     terminal_prompt();
 }
 
@@ -147,18 +144,15 @@ void terminal_tick()
         } else if (c == '\x7f') {
             if (terminal_pos > 0) {
                 terminal_pos--;
-                terminal_size--;
                 SerialIO->print("\x8 \x8");
             }
         //Special key
         } else if (c == '\x1b') {
             char code[2];
-            if (SerialIO->available()) {
-                code[0] = SerialIO->read();
-                if (SerialIO->available()) {
-                    code[1] = SerialIO->read();
-                }
-            }
+            while (!SerialIO->available());
+            code[0] = SerialIO->read();
+            while (!SerialIO->available());
+            code[1] = SerialIO->read();
         //Others
         } else {
             terminal_buffer[terminal_pos] = c;
@@ -166,10 +160,6 @@ void terminal_tick()
 
             if (terminal_pos < TERMINAL_BUFFER_SIZE-1) {
                 terminal_pos++;
-            }
-
-            if (terminal_size < terminal_pos) {
-                terminal_size = terminal_pos;
             }
         }
     }
