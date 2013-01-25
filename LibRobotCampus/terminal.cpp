@@ -52,7 +52,8 @@ void terminal_prompt()
 /***
  * Executes the given command with given parameters
  */
-void terminal_execute(char *command_name, unsigned int command_name_length, char *parameters)
+void terminal_execute(char *command_name, unsigned int command_name_length, 
+    unsigned int argc, char **argv)
 {
     unsigned int i;
     char command_found = 0;
@@ -61,7 +62,7 @@ void terminal_execute(char *command_name, unsigned int command_name_length, char
         const struct terminal_command *command = terminal_commands[i];
 
         if (strlen(command->name) == command_name_length && strncmp(terminal_buffer, command->name, command_name_length) == 0) {
-            command->command(parameters);
+            command->command(argc, argv);
 
             command_found = 1;
             break;
@@ -82,26 +83,31 @@ void terminal_execute(char *command_name, unsigned int command_name_length, char
  */
 void terminal_process()
 {
-    char *saveptr ,*parameters;
+    char *saveptr;
     unsigned int command_name_length;
+
+    unsigned int argc = 0;
+    char* argv[TERMINAL_MAX_ARGUMENTS+1];
     
     SerialIO->println();
 
     strtok_r(terminal_buffer, " ", &saveptr);
-    parameters = strtok_r(NULL, " ", &saveptr);
+    while (
+        (argv[argc] = strtok_r(NULL, " ", &saveptr)) != NULL && 
+        argc < TERMINAL_MAX_ARGUMENTS
+    ) {
+        *(argv[argc]-1) = '\0';
+        argc++;
+    }
     
     if (saveptr != NULL) {
         *(saveptr - 1) = ' ';
     }
     
-    if (parameters != NULL) {
-        command_name_length = parameters - terminal_buffer - 1;
-    } else {
-        command_name_length = strlen(terminal_buffer);
-    }
+    command_name_length = strlen(terminal_buffer);
 
     if (command_name_length > 0) {
-        terminal_execute(terminal_buffer, command_name_length, parameters);
+        terminal_execute(terminal_buffer, command_name_length, argc, argv);
     }
 
     terminal_pos = 0;

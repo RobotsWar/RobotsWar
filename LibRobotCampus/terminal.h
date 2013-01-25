@@ -10,6 +10,11 @@
 #define TERMINAL_BUFFER_SIZE 32
 
 /**
+ * Maximum number of command arguments
+ */
+#define TERMINAL_MAX_ARGUMENTS 4
+
+/**
  * Maximum number of commands
  * which ca be registered
  */
@@ -28,15 +33,21 @@
  * @param description : the description of the command, with quote
  *
  * use terminal_io() to print on output
- * use the variable parameters to get the string of given arguments
+ * use the variables arc and argv to get the string of given arguments
  *
  * Example :
  *
  * TERMINAL_COMMAND(hello, "Print a friendly warming welcoming message")
  * {
- *     if (parameters != NULL) {
+ *     if (argc > 0) {
  *         terminal_io()->print("Hello ");
- *         terminal_io()->println(parameters);
+ *         terminal_io()->println(argv[0]);
+ *         terminal_io()->print("Other params: ");
+ *         for (unsigned i=1;i<argc;i++) {
+ *             terminal_io()->print(argv[i]);
+ *             terminal_io()->print(" ");
+ *         }
+ *         terminal_io()->println();
  *     } else {
  *         terminal_io()->println("Hello world");
  *     }
@@ -76,7 +87,7 @@ Serial* terminal_io();
 /**
  * Prototype of a terminal command
  */
-typedef void terminal_command_fn(char *parameters);
+typedef void terminal_command_fn(unsigned int argc, char *argv[]);
 
 /**
  * A command definition for the terminal
@@ -109,7 +120,7 @@ void terminal_register(const struct terminal_command *command);
         terminal_register(&terminal_command_definition_ ## name ); \
     } \
     \
-    void terminal_command_ ## name (char *parameters)
+    void terminal_command_ ## name (unsigned int argc, char *argv[])
 
 #endif // _TERMINAL_H
 
