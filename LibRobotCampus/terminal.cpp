@@ -2,6 +2,21 @@
 #include <string.h>
 #include "terminal.h"
 
+/**
+ * Control bar structure
+ */
+struct terminal_bar_t
+{
+    int min;
+    int max;
+    int pos;
+    bool escape;
+};
+
+/**
+ * Global variables terminal
+ */
+
 static char terminal_buffer[TERMINAL_BUFFER_SIZE];
 
 static unsigned int terminal_pos = 0;
@@ -11,6 +26,8 @@ static const struct terminal_command *terminal_commands[TERMINAL_MAX_COMMANDS];
 static unsigned int terminal_command_count = 0;
 
 static Serial *SerialIO = 0;
+
+static terminal_bar_t terminal_bar;
 
 /**
  * Registers a command
@@ -122,6 +139,7 @@ void terminal_init(Serial *serial)
         SerialIO = serial;
     }
     terminal_prompt();
+    terminal_bar.escape = true;
 }
 
 /**
@@ -177,5 +195,80 @@ void terminal_tick()
 Serial* terminal_io()
 {
     return SerialIO;
+}
+
+void terminal_bar_init(int min, int max, int pos)
+{
+    if (min < max && pos >= min && pos <= max) {
+        terminal_bar.min = min;
+        terminal_bar.max = max;
+        terminal_bar.pos = pos;
+        terminal_bar.escape = false;
+    }
+}
+
+int terminal_bar_tick()
+{
+    int step = terminal_bar.max - terminal_bar.min;
+    step = step / TERMINAL_BAR_STEP;
+    if (step == 0) {
+        step = 1;
+    }
+
+    if (terminal_bar.escape == false) {
+        terminal_io()->print("\x8\x8\x8\x8    ");
+        terminal_io()->print("\r");
+        terminal_io()->print("Bar: ");
+        terminal_io()->print(terminal_bar.pos);
+        terminal_io()->print(" | ");
+        terminal_io()->print(terminal_bar.min);
+        terminal_io()->print(" ");
+        for (int i=terminal_bar.min;i<=terminal_bar.max;i+=step) {
+            if (i <= terminal_bar.pos) {
+                terminal_io()->print("=");
+            } else {
+                terminal_io()->print(".");
+            }
+        }
+        terminal_io()->print(" ");
+        terminal_io()->print(terminal_bar.max);
+
+        while (true) {
+            while (!terminal_io()->available());
+            char input = (char)terminal_io()->read();
+            if (input == '\x1b') {
+                char code[2];
+                while (!SerialIO->available());
+                code[0] = SerialIO->read();
+                while (!SerialIO->available());
+                code[1] = SerialIO->read();
+                //Left
+                if (code[0] == '[' && code[1] == 'D') {
+                    terminal_bar.pos -= step;
+                    break;
+                //Right
+                } else if (code[0] == '[' && code[1] == 'C') {
+                    terminal_bar.pos += step;
+                    break;
+                }
+            } else if (input == '\r' || input == '\n') {
+                terminal_io()->println();
+                terminal_bar.escape = true;
+                break;
+            }
+        }
+        if (terminal_bar.pos < terminal_bar.min) {
+            terminal_bar.pos = terminal_bar.min;
+        } else if (terminal_bar.pos > terminal_bar.max) {
+            terminal_bar.pos = terminal_bar.max;
+        }
+    } 
+
+    return terminal_bar.pos;
+}
+
+bool terminal_bar_escaped()
+{
+    return terminal_bar.escape;
 }
 

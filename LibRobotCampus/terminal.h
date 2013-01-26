@@ -7,18 +7,23 @@
  * Maximum length of a command line
  * and its argument
  */
-#define TERMINAL_BUFFER_SIZE 32
+#define TERMINAL_BUFFER_SIZE 64
 
 /**
  * Maximum number of command arguments
  */
-#define TERMINAL_MAX_ARGUMENTS 4
+#define TERMINAL_MAX_ARGUMENTS 8
 
 /**
  * Maximum number of commands
  * which ca be registered
  */
 #define TERMINAL_MAX_COMMANDS 16
+
+/**
+ * The number of terminal bar step
+ */
+#define TERMINAL_BAR_STEP 50
 
 /**
  * Terminal prompt
@@ -77,6 +82,26 @@ void terminal_tick();
  */
 Serial* terminal_io();
 
+/**
+ * Initialize the termanl bar structure
+ * @param min : minimum value
+ * @param max : maximum value
+ * @param pos : initial position
+ */
+void terminal_bar_init(int min, int max, int pos);
+
+/**
+ * Terminal bar ticking
+ * Fetch the serial port and handle the bar
+ * @return the bar position
+ */
+int terminal_bar_tick();
+
+/**
+ * Returns true if the bar session
+ * have been interrupted
+ */
+bool terminal_bar_escaped();
 
 /**
  * ----------------------------------------------------------------------------
