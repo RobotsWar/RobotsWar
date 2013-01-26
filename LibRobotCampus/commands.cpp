@@ -3,6 +3,73 @@
 #include "terminal.h"
 #include "servos.h"
 
+TERMINAL_COMMAND(command_ui, 
+    "Set position of a servo with UI. Usage: command_ui [label]")
+{
+    if (argc == 1) {
+        uint8_t i = servos_index(argv[0]);
+        if (i != (uint8_t)-1) {
+            terminal_bar_init(-100, 100, (int)(servos_get_command(i)*100.0));
+            while (terminal_bar_escaped() == false) {
+                int pos = terminal_bar_tick();
+                servos_command(i, ((float)pos)/100.0);
+            }
+        } else {
+            terminal_io()->println("Unknown label");
+        }
+    } else {
+        terminal_io()->println("Bad usage");
+    }
+}
+
+TERMINAL_COMMAND(calibrate_ui, 
+    "Calibrate a servo with UI. Usage: calibrate_ui [label]")
+{
+    if (argc == 1) {
+        uint8_t i = servos_index(argv[0]);
+        if (i != (uint8_t)-1) {
+            uint16_t min = 0;
+            uint16_t max = SERVOS_TIMERS_OVERFLOW;
+            uint16_t zero = SERVOS_TIMERS_OVERFLOW/10;
+            servos_calibrate(i, min, zero, max, false);
+            servos_enable(i, true);
+            //Min
+            terminal_io()->println("Select min position:");
+            terminal_bar_init(0, 3*SERVOS_TIMERS_OVERFLOW/10, servos_get_pos(i));
+            while (terminal_bar_escaped() == false) {
+                min = (uint16_t)terminal_bar_tick();
+                servos_set_pos(i, min);
+            }
+            //Max
+            terminal_io()->println("Select max position:");
+            terminal_bar_init(min, 3*SERVOS_TIMERS_OVERFLOW/10, min);
+            while (terminal_bar_escaped() == false) {
+                max = (uint16_t)terminal_bar_tick();
+                servos_set_pos(i, max);
+            }
+            //Zero
+            terminal_io()->println("Select zero position:");
+            terminal_bar_init(min, max, max);
+            while (terminal_bar_escaped() == false) {
+                zero = (uint16_t)terminal_bar_tick();
+                servos_set_pos(i, zero);
+            }
+            //Calibrate
+            servos_enable(i, false);
+            uint8_t code = servos_calibrate(i, min, zero, max, false);
+            if (code == 0) {
+                terminal_io()->println("OK");
+            } else {
+                terminal_io()->println("Error");
+            }
+        } else {
+            terminal_io()->println("Unknown label");
+        }
+    } else {
+        terminal_io()->println("Bad usage");
+    }
+}
+
 TERMINAL_COMMAND(emergency, "Disable all servos")
 {
     servos_emergency();
@@ -33,6 +100,29 @@ TERMINAL_COMMAND(servos_reset,
     }
 }
 
+TERMINAL_COMMAND(servos_calibrate, 
+    "Calibrate a servo. Usage: servos_calibrate [label] [min] [max] [zero]")
+{
+    if (argc == 4) {
+        uint8_t i = servos_index(argv[0]);
+        uint16_t min = atoi(argv[1]);
+        uint16_t max = atoi(argv[2]);
+        uint16_t zero = atoi(argv[3]);
+        if (i != (uint8_t)-1) {
+            uint8_t code = servos_calibrate(i, min, zero, max, false);
+            if (code == 0) {
+                terminal_io()->println("OK");
+            } else {
+                terminal_io()->println("Error");
+            }
+        } else {
+            terminal_io()->println("Unknown label");
+        }
+    } else {
+        terminal_io()->println("Bad usage");
+    }
+}
+
 TERMINAL_COMMAND(servos_position, 
     "Set (timer) position to a servo. Usage: servos_position [label] [pos]")
 {
@@ -41,6 +131,23 @@ TERMINAL_COMMAND(servos_position,
         uint16_t pos = atoi(argv[1]);
         if (i != (uint8_t)-1) {
             servos_set_pos(i, pos);
+            terminal_io()->println("OK");
+        } else {
+            terminal_io()->println("Unknown label");
+        }
+    } else {
+        terminal_io()->println("Bad usage");
+    }
+}
+
+TERMINAL_COMMAND(servos_command, 
+    "Set relative position to a servo. Usage: servos_command [label] [pos]")
+{
+    if (argc == 2) {
+        uint8_t i = servos_index(argv[0]);
+        float pos = atof(argv[1]);
+        if (i != (uint8_t)-1) {
+            servos_command(i, pos);
             terminal_io()->println("OK");
         } else {
             terminal_io()->println("Unknown label");
@@ -113,6 +220,8 @@ TERMINAL_COMMAND(servos_status, "Display servos informations")
         terminal_io()->println(i);
         terminal_io()->print("    pin      = ");
         terminal_io()->println(servos_get_pin(i));
+        terminal_io()->print("    command  = ");
+        terminal_io()->println(servos_get_command(i));
         terminal_io()->print("    pos      = ");
         terminal_io()->println(servos_get_pos(i));
         terminal_io()->print("    min      = ");
