@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "terminal.h"
@@ -28,7 +27,7 @@ TERMINAL_COMMAND(help, "Displays the help about commands")
 {
     unsigned int i;
 
-    terminal_io()->println("Available commands :");
+    terminal_io()->println("Available commands:");
     terminal_io()->println();
 
     for (i=0; i<terminal_command_count; i++) {
