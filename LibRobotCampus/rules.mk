@@ -15,6 +15,8 @@ CFLAGS_$(d) = $(LIBMAPLE_INCLUDES) $(WIRISH_INCLUDES) $(LIBROBOT_INCLUDES) -Wall
 
 # Local rules and targets
 cppSRCS_$(d) := terminal.cpp
+cppSRCS_$(d) += servos.cpp
+cppSRCS_$(d) += commands.cpp
 
 cppFILES_$(d) := $(cppSRCS_$(d):%=$(d)/%)
 
