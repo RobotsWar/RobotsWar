@@ -62,6 +62,7 @@ uint16_t servos_get_pos(uint8_t index);
 bool servos_is_reversed(uint8_t index);
 bool servos_is_enabled(uint8_t index);
 char* servos_get_label(uint8_t index);
+float servos_get_command(uint8_t index);
 
 /**
  * Calibrate the servo
@@ -70,8 +71,9 @@ char* servos_get_label(uint8_t index);
  * @param zero : default zero position in timer value
  * @param max : maximum position in timer value
  * @param reversed : reverse direction if true
+ * @return 0 on success, 1 if error
  */
-void servos_calibrate(uint8_t index, 
+uint8_t servos_calibrate(uint8_t index, 
     uint16_t min, uint16_t zero, uint16_t max, bool reversed = false);
 
 /**
@@ -80,6 +82,13 @@ void servos_calibrate(uint8_t index,
  * @param pos : timer value
  */
 void servos_set_pos(uint8_t index, uint16_t pos);
+
+/**
+ * Set servo position between -1 and 1
+ * @param index
+ * @param pos : calibrated value
+ */
+void servos_command(uint8_t index, float pos);
 
 /**
  * Set servo at position zero

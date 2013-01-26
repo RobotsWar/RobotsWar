@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "servos.h"
+#include "terminal.h"
 
 /**
  * Servo structure
@@ -50,6 +51,12 @@ void servos_init()
 uint8_t servos_register(uint8_t pin, char* label)
 {
     if (Servos_count < SERVOS_MAX_NB) {
+        for (uint8_t i=0;i<Servos_count;i++) {
+            if (strncmp(Servos[i].label, label, SERVOS_ID_LENGTH) == 0) {
+                return -1;
+            }
+        }
+
         Servos[Servos_count].pin = pin;
         Servos[Servos_count].min = 0;
         Servos[Servos_count].max = SERVOS_TIMERS_OVERFLOW;
@@ -126,21 +133,41 @@ char* servos_get_label(uint8_t index)
     if (index != -1 && index < Servos_count) return Servos[index].label;
     else return NULL;
 }
+float servos_get_command(uint8_t index)
+{
+    if (index != -1 && index < Servos_count) {
+        float pos;
+        if (Servos[index].pos >= Servos[index].zero) {
+            pos = (float)(Servos[index].pos-Servos[index].zero) / 
+                (float)(Servos[index].max-Servos[index].zero);
+        } else {
+            pos = (float)(Servos[index].pos-Servos[index].zero) / 
+                (float)(Servos[index].zero-Servos[index].min);
+        }
+        
+        return pos;
+    } else {
+        return 0.0;
+    }
+}
 
-void servos_calibrate(uint8_t index,
+uint8_t servos_calibrate(uint8_t index,
     uint16_t min, uint16_t zero, uint16_t max, bool reversed)
 {
     if (
-        index == -1 || index >= Servos_count || max >= min || 
+        index == -1 || index >= Servos_count || max <= min || 
         zero < min || zero > max
     ) {
-        return;
+        return 1;
     }
 
     Servos[index].min = min;
     Servos[index].max = max;
     Servos[index].zero = zero;
     Servos[index].reversed = reversed;
+    servos_set_pos(index, Servos[index].pos);
+
+    return 0;
 }
 
 void servos_set_pos(uint8_t index, uint16_t pos)
@@ -154,10 +181,30 @@ void servos_set_pos(uint8_t index, uint16_t pos)
     if (pos > Servos[index].max) {
         pos = Servos[index].max;
     }
-    if (pos != Servos[index].pos) {
-        Servos[index].pos = pos;
-        pwmWrite(Servos[index].pin, Servos[index].pos);
+    
+    Servos[index].pos = pos;
+    pwmWrite(Servos[index].pin, Servos[index].pos);
+}
+
+void servos_command(uint8_t index, float pos)
+{
+    if (
+        index == -1 || index >= Servos_count || 
+        pos > 1.0 || pos < -1.0
+    ) {
+        return;
     }
+
+    uint16_t p;
+    if (pos >= 0.0) {
+        p = (uint16_t)(pos*(Servos[index].max-Servos[index].zero)) + 
+            Servos[index].zero;
+    } else {
+        p = Servos[index].zero - 
+            (uint16_t)((-pos)*(Servos[index].zero-Servos[index].min));
+    }
+
+    servos_set_pos(index, p);
 }
 
 void servos_reset(uint8_t index)
@@ -178,6 +225,7 @@ void servos_enable(uint8_t index, bool enabled)
         digitalWrite(Servos[index].pin, 0x00);
         Servos[index].enabled = false;
     } else if (enabled == true && Servos[index].enabled == false) {
+        servos_set_pos(index, Servos[index].pos);
         pinMode(Servos[index].pin, PWM);
         Servos[index].enabled = true;
     }
