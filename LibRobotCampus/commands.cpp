@@ -76,8 +76,8 @@ TERMINAL_COMMAND(emergency, "Disable all servos")
     terminal_io()->println("OK");
 }
 
-TERMINAL_COMMAND(servos_reset, 
-    "Reset all or one servo position to zero. Usage: servos_reet [label|all]")
+TERMINAL_COMMAND(reset, 
+    "Reset all or one servo position to zero. Usage: reset [label|all]")
 {
     if (argc == 1) {
         if (strcmp(argv[0], "all") == 0) {
@@ -100,8 +100,8 @@ TERMINAL_COMMAND(servos_reset,
     }
 }
 
-TERMINAL_COMMAND(servos_calibrate, 
-    "Calibrate a servo. Usage: servos_calibrate [label] [min] [max] [zero]")
+TERMINAL_COMMAND(calibrate, 
+    "Calibrate a servo. Usage: calibrate [label] [min] [max] [zero]")
 {
     if (argc == 4) {
         uint8_t i = servos_index(argv[0]);
@@ -123,8 +123,8 @@ TERMINAL_COMMAND(servos_calibrate,
     }
 }
 
-TERMINAL_COMMAND(servos_position, 
-    "Set (timer) position to a servo. Usage: servos_position [label] [pos]")
+TERMINAL_COMMAND(position, 
+    "Set (timer) position to a servo. Usage: position [label] [pos]")
 {
     if (argc == 2) {
         uint8_t i = servos_index(argv[0]);
@@ -140,8 +140,8 @@ TERMINAL_COMMAND(servos_position,
     }
 }
 
-TERMINAL_COMMAND(servos_command, 
-    "Set relative position to a servo. Usage: servos_command [label] [pos]")
+TERMINAL_COMMAND(command, 
+    "Set relative position to a servo. Usage: command [label] [pos]")
 {
     if (argc == 2) {
         uint8_t i = servos_index(argv[0]);
@@ -157,8 +157,8 @@ TERMINAL_COMMAND(servos_command,
     }
 }
 
-TERMINAL_COMMAND(servos_disable, 
-    "Disable all or one servo. Usage: servos_disable [label|all]")
+TERMINAL_COMMAND(disable, 
+    "Disable all or one servo. Usage: disable [label|all]")
 {
     if (argc == 1) {
         if (strcmp(argv[0], "all") == 0) {
@@ -181,8 +181,8 @@ TERMINAL_COMMAND(servos_disable,
     }
 }
 
-TERMINAL_COMMAND(servos_enable, 
-    "Enable all or one servo. Usage: servos_enable [label|all]")
+TERMINAL_COMMAND(enable, 
+    "Enable all or one servo. Usage: enable [label|all]")
 {
     if (argc == 1) {
         if (strcmp(argv[0], "all") == 0) {
@@ -205,7 +205,7 @@ TERMINAL_COMMAND(servos_enable,
     }
 }
 
-TERMINAL_COMMAND(servos_status, "Display servos informations")
+TERMINAL_COMMAND(status, "Display servos informations")
 {
     int count = servos_count();
     terminal_io()->print("> ");
@@ -237,8 +237,8 @@ TERMINAL_COMMAND(servos_status, "Display servos informations")
     }
 }
 
-TERMINAL_COMMAND(servos_add, 
-    "Register a new servos. Usage: servos_add [pin] [label]")
+TERMINAL_COMMAND(register, 
+    "Register a new servos. Usage: register [pin] [label]")
 {
     if (argc == 2) {
         uint8_t pin = atoi(argv[0]);
