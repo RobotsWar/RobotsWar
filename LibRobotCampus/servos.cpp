@@ -52,7 +52,10 @@ uint8_t servos_register(uint8_t pin, char* label)
 {
     if (Servos_count < SERVOS_MAX_NB) {
         for (uint8_t i=0;i<Servos_count;i++) {
-            if (strncmp(Servos[i].label, label, SERVOS_ID_LENGTH) == 0) {
+            if (
+                strncmp(Servos[i].label, label, SERVOS_ID_LENGTH) == 0 ||
+                Servos[i].pin == pin
+            ) {
                 return -1;
             }
         }

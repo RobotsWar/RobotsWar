@@ -29,6 +29,8 @@ static Serial *SerialIO = 0;
 
 static terminal_bar_t terminal_bar;
 
+static bool terminal_echo_mode = true;
+
 /**
  * Registers a command
  */
@@ -51,9 +53,24 @@ TERMINAL_COMMAND(help, "Displays the help about commands")
         const struct terminal_command *command = terminal_commands[i];
 
         terminal_io()->print(command->name);
-        terminal_io()->print(": ");
+        terminal_io()->println(":");
+        terminal_io()->print("    ");
         terminal_io()->print(command->description);
         terminal_io()->println();
+    }
+}
+
+/**
+ * Switch echo mode
+ */
+TERMINAL_COMMAND(echo, "Switch echo mode")
+{
+    if (terminal_echo_mode == false) {
+        terminal_echo_mode = true;
+        terminal_io()->println("Echo enabled");
+    } else {
+        terminal_echo_mode = false;
+        terminal_io()->println("Echo disabled");
     }
 }
 
@@ -179,7 +196,9 @@ void terminal_tick()
         //Others
         } else {
             terminal_buffer[terminal_pos] = c;
-            SerialIO->print(c);
+            if (terminal_echo_mode) {
+                SerialIO->print(c);
+            }
 
             if (terminal_pos < TERMINAL_BUFFER_SIZE-1) {
                 terminal_pos++;
