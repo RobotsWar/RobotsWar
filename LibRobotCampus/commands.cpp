@@ -237,6 +237,12 @@ TERMINAL_COMMAND(status, "Display servos informations")
     }
 }
 
+TERMINAL_COMMAND(flush, "Clear all registered servos")
+{
+    servos_flush();
+    terminal_io()->println("OK");
+}
+
 TERMINAL_COMMAND(register, 
     "Register a new servos. Usage: register [pin] [label]")
 {

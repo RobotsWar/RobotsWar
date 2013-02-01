@@ -238,3 +238,11 @@ void servos_emergency()
     }
 }
 
+void servos_flush()
+{
+    for (int8_t i=0;i<Servos_count;i++) {
+        servos_enable(i, false);
+    }
+    Servos_count = 0;
+}
+

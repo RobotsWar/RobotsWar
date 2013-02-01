@@ -108,5 +108,10 @@ void servos_enable(uint8_t index, bool enabled = true);
  */
 void servos_emergency();
 
+/**
+ * Clear all registered servos
+ */
+void servos_flush();
+
 #endif
 
