@@ -40,12 +40,20 @@ void initTimer(uint8_t i)
     timer.resume();
 }
 
+void button_pressed()
+{
+    servos_emergency();
+}
+
 void servos_init()
 {
     initTimer(1);
     initTimer(2);
     initTimer(3);
     initTimer(4);
+
+    pinMode(BOARD_BUTTON_PIN, INPUT);
+    attachInterrupt(BOARD_BUTTON_PIN, button_pressed, RISING);
 }
 
 uint8_t servos_register(uint8_t pin, char* label)
@@ -167,6 +175,7 @@ uint8_t servos_calibrate(uint8_t index,
     Servos[index].min = min;
     Servos[index].max = max;
     Servos[index].zero = zero;
+    Servos[index].pos = zero;
     Servos[index].reversed = reversed;
     servos_set_pos(index, Servos[index].pos);
 
@@ -224,8 +233,7 @@ void servos_enable(uint8_t index, bool enabled)
         return;
     }
     if (enabled == false && Servos[index].enabled == true) {
-        pinMode(Servos[index].pin, OUTPUT);
-        digitalWrite(Servos[index].pin, 0x00);
+        pinMode(Servos[index].pin, INPUT_FLOATING);
         Servos[index].enabled = false;
     } else if (enabled == true && Servos[index].enabled == false) {
         servos_set_pos(index, Servos[index].pos);
@@ -234,16 +242,27 @@ void servos_enable(uint8_t index, bool enabled)
     }
 }
 
+void servos_enable_all()
+{
+    for (int8_t i=0; i<Servos_count; i++) {
+        servos_enable(i, true);
+    }
+    
+    digitalWrite(BOARD_LED_PIN, HIGH);
+}
+
 void servos_emergency()
 {
-    for (int8_t i=0;i<Servos_count;i++) {
+    for (int8_t i=0; i<Servos_count; i++) {
         servos_enable(i, false);
     }
+
+    digitalWrite(BOARD_LED_PIN, LOW);
 }
 
 void servos_flush()
 {
-    for (int8_t i=0;i<Servos_count;i++) {
+    for (int8_t i=0; i<Servos_count; i++) {
         servos_enable(i, false);
     }
     Servos_count = 0;

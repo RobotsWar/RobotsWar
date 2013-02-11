@@ -104,6 +104,11 @@ void servos_reset(uint8_t index);
 void servos_enable(uint8_t index, bool enabled = true);
 
 /**
+ * Starts all servos
+ */
+void servos_enable_all();
+
+/**
  * Stop all servos
  */
 void servos_emergency();

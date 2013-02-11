@@ -70,6 +70,12 @@ TERMINAL_COMMAND(calibrate_ui,
     }
 }
 
+TERMINAL_COMMAND(start, "Enable all the servos")
+{
+    servos_enable_all();
+    terminal_io()->println("OK");
+}
+
 TERMINAL_COMMAND(emergency, "Disable all servos")
 {
     servos_emergency();
@@ -211,7 +217,8 @@ TERMINAL_COMMAND(status, "Display servos informations")
     terminal_io()->print("> ");
     terminal_io()->print(count);
     terminal_io()->println(" servos registered");
-    for (int i=0;i<count;i++) {
+
+    for (int i=0; i<count; i++) {
         terminal_io()->print("[");
         terminal_io()->print(servos_get_label(i));
         terminal_io()->println("]");
@@ -234,6 +241,47 @@ TERMINAL_COMMAND(status, "Display servos informations")
         terminal_io()->println(servos_is_reversed(i));
         terminal_io()->print("    enabled  = ");
         terminal_io()->println(servos_is_enabled(i));
+    }
+}
+
+TERMINAL_COMMAND(dumpcode, "Displays the servo initialization C code")
+{
+    int count = servos_count();
+
+    for (int i=0; i<count; i++) {
+        // Definine the index
+        terminal_io()->print("#define SERVO_");
+        terminal_io()->print(servos_get_label(i));
+        terminal_io()->print(" ");
+        terminal_io()->println(i);
+    }
+
+    terminal_io()->println();
+    
+    for (int i=0; i<count; i++) {
+        // Printing the register code
+        terminal_io()->print("servos_register(");
+        terminal_io()->print(servos_get_pin(i));
+        terminal_io()->print(", \"");
+        terminal_io()->print(servos_get_label(i));
+        terminal_io()->println("\");");
+        
+        // Printing the calibration code
+        terminal_io()->print("servos_calibrate(");
+        terminal_io()->print(i);
+        terminal_io()->print(", ");
+        terminal_io()->print(servos_get_min(i));
+        terminal_io()->print(", ");
+        terminal_io()->print(servos_get_zero(i));
+        terminal_io()->print(", ");
+        terminal_io()->print(servos_get_max(i));
+        terminal_io()->print(", ");
+        if (servos_is_reversed(i)) {
+            terminal_io()->print("true");
+        } else {
+            terminal_io()->print("false");
+        }
+        terminal_io()->println(");");
     }
 }
 

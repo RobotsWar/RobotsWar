@@ -18,7 +18,7 @@
  * Maximum number of commands
  * which ca be registered
  */
-#define TERMINAL_MAX_COMMANDS 16
+#define TERMINAL_MAX_COMMANDS 32
 
 /**
  * The number of terminal bar step

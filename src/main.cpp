@@ -2,23 +2,38 @@
 #include <servos.h>
 #include <terminal.h>
 
-#define EYE1 6
-#define EYE2 7
-
+volatile bool flag = false;
 volatile bool isUSB = false;
 volatile int counter = 0;
 
-void tick()
-{
-    counter++;
-}
-
+/**
+ * Example counter, incremented @50hz
+ */
 TERMINAL_COMMAND(counter, "See the counter")
 {
     terminal_io()->print("Counter: ");
     terminal_io()->println(counter);
 }
 
+/**
+ * Function called @50Hz
+ */
+void tick()
+{
+    counter++;
+}
+
+/**
+ * Interrupt @50hz, set the flag
+ */
+void setFlag()
+{
+    flag = true;
+}
+
+/**
+ * Setting up the board
+ */
 void setup()
 {
     pinMode(BOARD_LED_PIN, OUTPUT);
@@ -29,9 +44,12 @@ void setup()
     terminal_init(&Serial3);
     
     // Attach the 50Hz interrupt
-    servos_attach_interrupt(tick);
+    servos_attach_interrupt(setFlag);
 }
 
+/**
+ * Main loop
+ */
 void loop()
 {
     terminal_tick();
@@ -40,6 +58,10 @@ void loop()
     if (SerialUSB.available() && !isUSB) {
         isUSB = true;
         terminal_init(&SerialUSB);
+    }
+
+    if (flag) {
+        tick();
     }
 }
 
