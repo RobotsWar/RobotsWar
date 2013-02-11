@@ -113,5 +113,10 @@ void servos_emergency();
  */
 void servos_flush();
 
+/**
+ * Attach an interrupt function @50hz
+ */
+void servos_attach_interrupt(voidFuncPtr func);
+
 #endif
 

@@ -249,3 +249,12 @@ void servos_flush()
     Servos_count = 0;
 }
 
+void servos_attach_interrupt(voidFuncPtr func)
+{
+    HardwareTimer timer(4);
+    timer.setChannelMode(4, TIMER_OUTPUT_COMPARE);
+    timer.setCompare(4, 18000);
+    timer.attachInterrupt(4, func);
+    timer.refresh();
+    timer.resume();
+}
