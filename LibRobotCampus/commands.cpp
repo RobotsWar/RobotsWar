@@ -259,3 +259,27 @@ TERMINAL_COMMAND(register,
     }
 }
 
+TERMINAL_COMMAND(forward,
+        "Go to forward mode, the Serial3 will be forwarded to USB and vice-versa")
+{
+    char buffer[512];
+    unsigned int pos;
+    terminal_io()->println("The forward mode will be enabled, you'll need to reboot the board to return to normal operation");
+
+    Serial3.begin(115200);
+
+    while (1) {
+        pos = 0;
+        while (Serial3.available() && pos < sizeof(buffer)) {
+            buffer[pos++] = Serial3.read();
+        }
+
+        if (pos > 0) {
+            SerialUSB.write(buffer, pos);
+        }
+
+        while (SerialUSB.available()) {
+            Serial3.write(SerialUSB.read());
+        }
+    }
+}
