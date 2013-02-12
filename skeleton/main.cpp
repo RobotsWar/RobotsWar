@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <wirish/wirish.h>
 #include <servos.h>
 #include <terminal.h>
