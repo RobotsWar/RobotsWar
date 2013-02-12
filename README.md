@@ -28,6 +28,7 @@ Directories
 Compilation
 -----------
 
+- Copy `skeleton/` to `src/`, for instance
 - Write your code in `src/`
 - Update the first line of src/build-targets.mk 
 - In `src/`, run `make` to compile

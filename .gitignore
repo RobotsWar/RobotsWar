@@ -13,9 +13,9 @@ LibMaple/TAGS
 cscope*
 .gdbinit
 
-# src
-src/*
-# Except src
-!src/Makefile
-!src/build-targets.mk
-!src/main.cpp
+# skeleton
+skeleton/*
+# Except skeleton
+!skeleton/Makefile
+!skeleton/build-targets.mk
+!skeleton/main.cpp
