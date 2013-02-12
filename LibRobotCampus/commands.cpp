@@ -228,6 +228,35 @@ TERMINAL_COMMAND(status, "Display servos informations")
     }
 }
 
+TERMINAL_COMMAND(dumpcommand, "Displays the servo initialization commands")
+{
+    int count = servos_count();
+    if (count == 0) {
+        terminal_io()->println("no servo registered");
+        return;
+    }
+
+    for (int i=0;i<count;i++) {
+        // Printing the register code
+        terminal_io()->print("register ");
+        terminal_io()->print(servos_get_pin(i));
+        terminal_io()->print(" ");
+        terminal_io()->print(servos_get_label(i));
+        terminal_io()->println();
+        
+        // Printing the calibration code
+        terminal_io()->print("calibrate ");
+        terminal_io()->print(servos_get_label(i));
+        terminal_io()->print(" ");
+        terminal_io()->print(servos_get_min(i));
+        terminal_io()->print(" ");
+        terminal_io()->print(servos_get_max(i));
+        terminal_io()->print(" ");
+        terminal_io()->print(servos_get_zero(i));
+        terminal_io()->println();
+    }
+}
+
 TERMINAL_COMMAND(dumpcode, "Displays the servo initialization C code")
 {
     int count = servos_count();
@@ -244,8 +273,6 @@ TERMINAL_COMMAND(dumpcode, "Displays the servo initialization C code")
         terminal_io()->println(i);
     }
 
-    terminal_io()->println();
-    
     for (int i=0;i<count;i++) {
         // Printing the register code
         terminal_io()->print("servos_register(");

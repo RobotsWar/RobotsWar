@@ -254,8 +254,20 @@ int terminal_bar_tick()
 
         while (true) {
             while (!terminal_io()->available());
+            bool specialKey = false;
             char input = (char)terminal_io()->read();
+            //Detect arrow keys
             if (input == '\x1b') {
+                specialKey = true;
+            } else if (input == '^') {
+                while (!SerialIO->available());
+                input = (char)terminal_io()->read();
+                if (input == '[') {
+                    specialKey = true;
+                }
+            }
+            //Arrow keys
+            if (specialKey) {
                 char code[2];
                 while (!SerialIO->available());
                 code[0] = SerialIO->read();
