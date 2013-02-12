@@ -78,7 +78,7 @@ uint8_t servos_register(uint8_t pin, char* label)
         Servos[Servos_count].pin = pin;
         Servos[Servos_count].min = 0;
         Servos[Servos_count].max = SERVOS_TIMERS_OVERFLOW;
-        Servos[Servos_count].zero = SERVOS_TIMERS_OVERFLOW/10;
+        Servos[Servos_count].zero = SERVOS_TIMERS_OVERFLOW/20;
         Servos[Servos_count].pos = Servos[Servos_count].zero;
         Servos[Servos_count].reversed = false;
         Servos[Servos_count].enabled = false;
