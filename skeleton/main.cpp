@@ -36,14 +36,14 @@ void setFlag()
  */
 void setup()
 {
-    pinMode(BOARD_LED_PIN, OUTPUT);
+    //Initialize robotcampus servos
     servos_init();
     
-    // Begining on WiFly Mode
+    //Begining on WiFly Mode
     Serial3.begin(115200);
     terminal_init(&Serial3);
     
-    // Attach the 50Hz interrupt
+    //Attach the 50Hz interrupt
     servos_attach_interrupt(setFlag);
 }
 
@@ -52,14 +52,16 @@ void setup()
  */
 void loop()
 {
+    //Handle terminal communication
     terminal_tick();
 
-    // If something is available on USB, switching to USB
+    //If something is available on USB, switching to USB
     if (SerialUSB.available() && !isUSB) {
         isUSB = true;
         terminal_init(&SerialUSB);
     }
 
+    //Handle @50Hz interrupt
     if (flag) {
         tick();
     }

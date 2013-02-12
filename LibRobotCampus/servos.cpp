@@ -47,12 +47,19 @@ void button_pressed()
 
 void servos_init()
 {
+    /**
+     * Set up hardware timer
+     */
     initTimer(1);
     initTimer(2);
     initTimer(3);
     initTimer(4);
 
+    /**
+     * Set up board led and button
+     */
     pinMode(BOARD_BUTTON_PIN, INPUT);
+    pinMode(BOARD_LED_PIN, OUTPUT);
     attachInterrupt(BOARD_BUTTON_PIN, button_pressed, RISING);
 }
 
@@ -272,8 +279,9 @@ void servos_attach_interrupt(voidFuncPtr func)
 {
     HardwareTimer timer(4);
     timer.setChannelMode(4, TIMER_OUTPUT_COMPARE);
-    timer.setCompare(4, 18000);
+    timer.setCompare(4, 3*SERVOS_TIMERS_OVERFLOW/10);
     timer.attachInterrupt(4, func);
     timer.refresh();
     timer.resume();
 }
+

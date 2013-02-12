@@ -164,23 +164,15 @@ TERMINAL_COMMAND(command,
 }
 
 TERMINAL_COMMAND(disable, 
-    "Disable all or one servo. Usage: disable [label|all]")
+    "Disable one servo. Usage: disable [label]")
 {
     if (argc == 1) {
-        if (strcmp(argv[0], "all") == 0) {
-            uint8_t i;
-            for (i=0;i<servos_count();i++) {
-                servos_enable(i, false);
-            }
+        uint8_t i = servos_index(argv[0]);
+        if (i != (uint8_t)-1) {
+            servos_enable(i, false);
             terminal_io()->println("OK");
         } else {
-            uint8_t i = servos_index(argv[0]);
-            if (i != (uint8_t)-1) {
-                servos_enable(i, false);
-                terminal_io()->println("OK");
-            } else {
-                terminal_io()->println("Unknown label");
-            }
+            terminal_io()->println("Unknown label");
         }
     } else {
         terminal_io()->println("Bad usage");
@@ -188,23 +180,15 @@ TERMINAL_COMMAND(disable,
 }
 
 TERMINAL_COMMAND(enable, 
-    "Enable all or one servo. Usage: enable [label|all]")
+    "Enable all or one servo. Usage: enable [label]")
 {
     if (argc == 1) {
-        if (strcmp(argv[0], "all") == 0) {
-            uint8_t i;
-            for (i=0;i<servos_count();i++) {
-                servos_enable(i, true);
-            }
+        uint8_t i = servos_index(argv[0]);
+        if (i != (uint8_t)-1) {
+            servos_enable(i, true);
             terminal_io()->println("OK");
         } else {
-            uint8_t i = servos_index(argv[0]);
-            if (i != (uint8_t)-1) {
-                servos_enable(i, true);
-                terminal_io()->println("OK");
-            } else {
-                terminal_io()->println("Unknown label");
-            }
+            terminal_io()->println("Unknown label");
         }
     } else {
         terminal_io()->println("Bad usage");
@@ -247,8 +231,12 @@ TERMINAL_COMMAND(status, "Display servos informations")
 TERMINAL_COMMAND(dumpcode, "Displays the servo initialization C code")
 {
     int count = servos_count();
+    if (count == 0) {
+        terminal_io()->println("no servo registered");
+        return;
+    }
 
-    for (int i=0; i<count; i++) {
+    for (int i=0;i<count;i++) {
         // Definine the index
         terminal_io()->print("#define SERVO_");
         terminal_io()->print(servos_get_label(i));
@@ -258,7 +246,7 @@ TERMINAL_COMMAND(dumpcode, "Displays the servo initialization C code")
 
     terminal_io()->println();
     
-    for (int i=0; i<count; i++) {
+    for (int i=0;i<count;i++) {
         // Printing the register code
         terminal_io()->print("servos_register(");
         terminal_io()->print(servos_get_pin(i));
@@ -312,7 +300,8 @@ TERMINAL_COMMAND(forward,
 {
     char buffer[512];
     unsigned int pos;
-    terminal_io()->println("The forward mode will be enabled, you'll need to reboot the board to return to normal operation");
+    terminal_io()->print("The forward mode will be enabled, ");
+    terminal_io()->println("you'll need to reboot the board to return to normal operation");
 
     Serial3.begin(115200);
 
