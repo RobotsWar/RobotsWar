@@ -296,14 +296,21 @@ TERMINAL_COMMAND(register,
 }
 
 TERMINAL_COMMAND(forward,
-        "Go to forward mode, the Serial3 will be forwarded to USB and vice-versa")
+        "Go to forward mode, the Serial3 will be forwarded to USB and vice-versa. Usage: forward [baudrate]")
 {
+    int baudrate = 115200;
     char buffer[512];
     unsigned int pos;
     terminal_io()->print("The forward mode will be enabled, ");
     terminal_io()->println("you'll need to reboot the board to return to normal operation");
 
-    Serial3.begin(115200);
+    if (argc) {
+        baudrate = atoi(argv[0]);
+    }
+    terminal_io()->print("Using baudrate ");
+    terminal_io()->println(baudrate);
+
+    Serial3.begin(baudrate);
 
     while (1) {
         pos = 0;
