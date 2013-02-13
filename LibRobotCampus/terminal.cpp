@@ -254,9 +254,10 @@ int terminal_bar_tick()
 
         while (true) {
             while (!terminal_io()->available());
+            int controlKey = 0;
             bool specialKey = false;
             char input = (char)terminal_io()->read();
-            //Detect arrow keys
+            //Detect control characters
             if (input == '\x1b') {
                 specialKey = true;
             } else if (input == '^') {
@@ -275,13 +276,25 @@ int terminal_bar_tick()
                 code[1] = SerialIO->read();
                 //Left
                 if (code[0] == '[' && code[1] == 'D') {
-                    terminal_bar.pos -= step;
-                    break;
+                    controlKey = -1;
                 //Right
                 } else if (code[0] == '[' && code[1] == 'C') {
-                    terminal_bar.pos += step;
-                    break;
+                    controlKey = 1;
                 }
+            //Alias keys for arrows left
+            } else if (input == 'h') {
+                controlKey = -1;
+            //Alias keys for arrows right
+            } else if (input == 'l') {
+                controlKey = 1;
+            }
+            //Apply control
+            if (controlKey == 1) {
+                terminal_bar.pos += step;
+                break;
+            } else if (controlKey == -1) {
+                terminal_bar.pos -= step;
+                break;
             } else if (input == '\r' || input == '\n') {
                 terminal_io()->println();
                 terminal_bar.escape = true;
