@@ -9,6 +9,11 @@
 #define SERVOS_ID_LENGTH 10
 
 /**
+ * Number of steps required for 1°
+ */
+#define DEFAULT_STEPS_PER_DEGREE 30.75
+
+/**
  * Max number of servos
  */
 #define SERVOS_MAX_NB 12
@@ -51,12 +56,12 @@ uint8_t servos_count();
 
 /**
  * Servo information
- * pin, min, zero, max, pos, reversed, enabled
+ * pin, min, init, max, pos, reversed, enabled
  * @param index : servo index
  */
 uint8_t servos_get_pin(uint8_t index);
 uint16_t servos_get_min(uint8_t index);
-uint16_t servos_get_zero(uint8_t index);
+uint16_t servos_get_init(uint8_t index);
 uint16_t servos_get_max(uint8_t index);
 uint16_t servos_get_pos(uint8_t index);
 bool servos_is_reversed(uint8_t index);
@@ -68,13 +73,13 @@ float servos_get_command(uint8_t index);
  * Calibrate the servo
  * @param index
  * @param min : minimum position in timer value
- * @param zero : default zero position in timer value
+ * @param init : default init position in timer value
  * @param max : maximum position in timer value
  * @param reversed : reverse direction if true
  * @return 0 on success, 1 if error
  */
 uint8_t servos_calibrate(uint8_t index, 
-    uint16_t min, uint16_t zero, uint16_t max, bool reversed = false);
+    uint16_t min, uint16_t init, uint16_t max, bool reversed = false);
 
 /**
  * Set servo position
@@ -84,14 +89,14 @@ uint8_t servos_calibrate(uint8_t index,
 void servos_set_pos(uint8_t index, uint16_t pos);
 
 /**
- * Set servo position between -1 and 1
+ * Set servo position in °
  * @param index
  * @param pos : calibrated value
  */
 void servos_command(uint8_t index, float pos);
 
 /**
- * Set servo at position zero
+ * Set servo at position init
  * @param index
  */
 void servos_reset(uint8_t index);
