@@ -9,10 +9,10 @@ TERMINAL_COMMAND(command_ui,
     if (argc == 1) {
         uint8_t i = servos_index(argv[0]);
         if (i != (uint8_t)-1) {
-            terminal_bar_init(-100, 100, (int)(servos_get_command(i)*100.0));
+            terminal_bar_init(-90, 90, (int)(servos_get_command(i)));
             while (terminal_bar_escaped() == false) {
                 int pos = terminal_bar_tick();
-                servos_command(i, ((float)pos)/100.0);
+                servos_command(i, pos);
             }
         } else {
             terminal_io()->println("Unknown label");
@@ -30,8 +30,8 @@ TERMINAL_COMMAND(calibrate_ui,
         if (i != (uint8_t)-1) {
             uint16_t min = 0;
             uint16_t max = SERVOS_TIMERS_OVERFLOW;
-            uint16_t zero = SERVOS_TIMERS_OVERFLOW/20;
-            servos_calibrate(i, min, zero, max, false);
+            uint16_t init = SERVOS_TIMERS_OVERFLOW/20;
+            servos_calibrate(i, min, init, max, false);
             servos_enable(i, true);
             //Min
             terminal_io()->println("Select min position:");
@@ -48,15 +48,15 @@ TERMINAL_COMMAND(calibrate_ui,
                 servos_set_pos(i, max);
             }
             //Zero
-            terminal_io()->println("Select zero position:");
+            terminal_io()->println("Select init position:");
             terminal_bar_init(min, max, max);
             while (terminal_bar_escaped() == false) {
-                zero = (uint16_t)terminal_bar_tick();
-                servos_set_pos(i, zero);
+                init = (uint16_t)terminal_bar_tick();
+                servos_set_pos(i, init);
             }
             //Calibrate
             servos_enable(i, false);
-            uint8_t code = servos_calibrate(i, min, zero, max, false);
+            uint8_t code = servos_calibrate(i, min, init, max, false);
             if (code == 0) {
                 terminal_io()->println("OK");
             } else {
@@ -83,7 +83,7 @@ TERMINAL_COMMAND(stop, "Disable all servos")
 }
 
 TERMINAL_COMMAND(reset, 
-    "Reset all or one servo position to zero. Usage: reset [label|all]")
+    "Reset all or one servo position to init. Usage: reset [label|all]")
 {
     if (argc == 1) {
         if (strcmp(argv[0], "all") == 0) {
@@ -107,15 +107,15 @@ TERMINAL_COMMAND(reset,
 }
 
 TERMINAL_COMMAND(calibrate, 
-    "Calibrate a servo. Usage: calibrate [label] [min] [max] [zero]")
+    "Calibrate a servo. Usage: calibrate [label] [min] [max] [init]")
 {
     if (argc == 4) {
         uint8_t i = servos_index(argv[0]);
         uint16_t min = atoi(argv[1]);
         uint16_t max = atoi(argv[2]);
-        uint16_t zero = atoi(argv[3]);
+        uint16_t init = atoi(argv[3]);
         if (i != (uint8_t)-1) {
-            uint8_t code = servos_calibrate(i, min, zero, max, false);
+            uint8_t code = servos_calibrate(i, min, init, max, false);
             if (code == 0) {
                 terminal_io()->println("OK");
             } else {
@@ -219,8 +219,8 @@ TERMINAL_COMMAND(status, "Display servos informations")
         terminal_io()->println(servos_get_min(i));
         terminal_io()->print("    max      = ");
         terminal_io()->println(servos_get_max(i));
-        terminal_io()->print("    zero     = ");
-        terminal_io()->println(servos_get_zero(i));
+        terminal_io()->print("    init     = ");
+        terminal_io()->println(servos_get_init(i));
         terminal_io()->print("    reversed = ");
         terminal_io()->println(servos_is_reversed(i));
         terminal_io()->print("    enabled  = ");
@@ -252,7 +252,7 @@ TERMINAL_COMMAND(dumpcommand, "Displays the servo initialization commands")
         terminal_io()->print(" ");
         terminal_io()->print(servos_get_max(i));
         terminal_io()->print(" ");
-        terminal_io()->print(servos_get_zero(i));
+        terminal_io()->print(servos_get_init(i));
         terminal_io()->println();
     }
 }
@@ -287,7 +287,7 @@ TERMINAL_COMMAND(dumpcode, "Displays the servo initialization C code")
         terminal_io()->print(", ");
         terminal_io()->print(servos_get_min(i));
         terminal_io()->print(", ");
-        terminal_io()->print(servos_get_zero(i));
+        terminal_io()->print(servos_get_init(i));
         terminal_io()->print(", ");
         terminal_io()->print(servos_get_max(i));
         terminal_io()->print(", ");

@@ -13,11 +13,12 @@ struct servo_t
     uint8_t pin; //PWM output pin number
     uint16_t min; //Position min
     uint16_t max; //Positin max
-    uint16_t zero; //Position origin
+    uint16_t init; //Position origin
     uint16_t pos; //Current position
     bool reversed; //True if direction are reversed (-1 gain)
     bool enabled; //True if servo are driven
     char label[SERVOS_ID_LENGTH+1]; //String shortcut
+    double steps_per_degree;
 };
 
 /**
@@ -78,10 +79,11 @@ uint8_t servos_register(uint8_t pin, char* label)
         Servos[Servos_count].pin = pin;
         Servos[Servos_count].min = 0;
         Servos[Servos_count].max = SERVOS_TIMERS_OVERFLOW;
-        Servos[Servos_count].zero = SERVOS_TIMERS_OVERFLOW/20;
-        Servos[Servos_count].pos = Servos[Servos_count].zero;
+        Servos[Servos_count].init = SERVOS_TIMERS_OVERFLOW/20;
+        Servos[Servos_count].pos = Servos[Servos_count].init;
         Servos[Servos_count].reversed = false;
         Servos[Servos_count].enabled = false;
+        Servos[Servos_count].steps_per_degree = DEFAULT_STEPS_PER_DEGREE;
         if (label != NULL) {
             strncpy(Servos[Servos_count].label, label, SERVOS_ID_LENGTH+1);
         } else {
@@ -121,9 +123,9 @@ uint16_t servos_get_min(uint8_t index)
     if (index != -1 && index < Servos_count) return Servos[index].min;
     else return -1;
 }
-uint16_t servos_get_zero(uint8_t index)
+uint16_t servos_get_init(uint8_t index)
 {
-    if (index != -1 && index < Servos_count) return Servos[index].zero;
+    if (index != -1 && index < Servos_count) return Servos[index].init;
     else return -1;
 }
 uint16_t servos_get_max(uint8_t index)
@@ -154,15 +156,8 @@ char* servos_get_label(uint8_t index)
 float servos_get_command(uint8_t index)
 {
     if (index != -1 && index < Servos_count) {
-        float pos;
-        if (Servos[index].pos >= Servos[index].zero) {
-            pos = (float)(Servos[index].pos-Servos[index].zero) / 
-                (float)(Servos[index].max-Servos[index].zero);
-        } else {
-            pos = (float)(Servos[index].pos-Servos[index].zero) / 
-                (float)(Servos[index].zero-Servos[index].min);
-        }
-        
+        float pos = (Servos[index].pos-Servos[index].init)/Servos[index].steps_per_degree;
+
         return pos;
     } else {
         return 0.0;
@@ -170,19 +165,19 @@ float servos_get_command(uint8_t index)
 }
 
 uint8_t servos_calibrate(uint8_t index,
-    uint16_t min, uint16_t zero, uint16_t max, bool reversed)
+    uint16_t min, uint16_t init, uint16_t max, bool reversed)
 {
     if (
         index == -1 || index >= Servos_count || max <= min || 
-        zero < min || zero > max
+        init < min || init > max
     ) {
         return 1;
     }
 
     Servos[index].min = min;
     Servos[index].max = max;
-    Servos[index].zero = zero;
-    Servos[index].pos = zero;
+    Servos[index].init = init;
+    Servos[index].pos = init;
     Servos[index].reversed = reversed;
     servos_set_pos(index, Servos[index].pos);
 
@@ -207,21 +202,15 @@ void servos_set_pos(uint8_t index, uint16_t pos)
 
 void servos_command(uint8_t index, float pos)
 {
-    if (
-        index == -1 || index >= Servos_count || 
-        pos > 1.0 || pos < -1.0
-    ) {
+    if (index == -1 || index >= Servos_count) {
         return;
     }
 
-    uint16_t p;
-    if (pos >= 0.0) {
-        p = (uint16_t)(pos*(Servos[index].max-Servos[index].zero)) + 
-            Servos[index].zero;
-    } else {
-        p = Servos[index].zero - 
-            (uint16_t)((-pos)*(Servos[index].zero-Servos[index].min));
+    if (Servos[index].reversed) {
+        pos *= -1;
     }
+
+    uint16_t p = (int)(Servos[index].init + pos*Servos[index].steps_per_degree);
 
     servos_set_pos(index, p);
 }
@@ -231,7 +220,7 @@ void servos_reset(uint8_t index)
     if (index == -1 || index >= Servos_count) {
         return;
     }
-    servos_set_pos(index, Servos[index].zero);
+    servos_set_pos(index, Servos[index].init);
 }
 
 void servos_enable(uint8_t index, bool enabled)
