@@ -42,7 +42,7 @@ void initTimer(uint8_t i)
 
 void button_pressed()
 {
-    servos_emergency();
+    servos_disable_all();
 }
 
 void servos_init()
@@ -258,7 +258,7 @@ void servos_enable_all()
     digitalWrite(BOARD_LED_PIN, HIGH);
 }
 
-void servos_emergency()
+void servos_disable_all()
 {
     for (int8_t i=0; i<Servos_count; i++) {
         servos_enable(i, false);

@@ -111,7 +111,7 @@ void servos_enable_all();
 /**
  * Stop all servos
  */
-void servos_emergency();
+void servos_disable_all();
 
 /**
  * Clear all registered servos

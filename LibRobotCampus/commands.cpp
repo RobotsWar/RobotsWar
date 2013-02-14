@@ -76,9 +76,9 @@ TERMINAL_COMMAND(start, "Enable all the servos")
     terminal_io()->println("OK");
 }
 
-TERMINAL_COMMAND(emergency, "Disable all servos")
+TERMINAL_COMMAND(stop, "Disable all servos")
 {
-    servos_emergency();
+    servos_disable_all();
     terminal_io()->println("OK");
 }
 

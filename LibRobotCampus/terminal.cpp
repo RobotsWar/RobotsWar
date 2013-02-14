@@ -63,9 +63,9 @@ TERMINAL_COMMAND(help, "Displays the help about commands")
 /**
  * Switch echo mode
  */
-TERMINAL_COMMAND(echo, "Switch echo mode")
+TERMINAL_COMMAND(echo, "Switch echo mode. Usage echo [on|off]")
 {
-    if (terminal_echo_mode == false) {
+    if ((argc == 1 && strcmp("on", argv[0])) || terminal_echo_mode == false) {
         terminal_echo_mode = true;
         terminal_io()->println("Echo enabled");
     } else {
@@ -175,6 +175,9 @@ void terminal_tick()
     while (SerialIO->available()) {
         input = SerialIO->read();
         c = (char)input;
+        if (c == '\0') {
+            continue;
+        }
 
         //Return key
         if (c == '\r' || c == '\n') {
