@@ -30,7 +30,7 @@ TERMINAL_COMMAND(calibrate_ui,
         if (i != (uint8_t)-1) {
             uint16_t min = 0;
             uint16_t max = SERVOS_TIMERS_OVERFLOW;
-            uint16_t zero = SERVOS_TIMERS_OVERFLOW/10;
+            uint16_t zero = SERVOS_TIMERS_OVERFLOW/20;
             servos_calibrate(i, min, zero, max, false);
             servos_enable(i, true);
             //Min
