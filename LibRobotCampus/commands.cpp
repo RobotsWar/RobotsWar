@@ -30,7 +30,7 @@ TERMINAL_COMMAND(calibrate_ui,
         if (i != (uint8_t)-1) {
             uint16_t min = 0;
             uint16_t max = SERVOS_TIMERS_OVERFLOW;
-            uint16_t init = SERVOS_TIMERS_OVERFLOW/10;
+            uint16_t init = SERVOS_TIMERS_OVERFLOW/20;
             servos_calibrate(i, min, init, max, false);
             servos_enable(i, true);
             //Min
@@ -76,9 +76,9 @@ TERMINAL_COMMAND(start, "Enable all the servos")
     terminal_io()->println("OK");
 }
 
-TERMINAL_COMMAND(emergency, "Disable all servos")
+TERMINAL_COMMAND(stop, "Disable all servos")
 {
-    servos_emergency();
+    servos_disable_all();
     terminal_io()->println("OK");
 }
 
