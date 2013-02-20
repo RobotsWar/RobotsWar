@@ -158,6 +158,10 @@ float servos_get_command(uint8_t index)
     if (index != -1 && index < Servos_count) {
         float pos = (Servos[index].pos-Servos[index].init)/Servos[index].steps_per_degree;
 
+        if (servos_is_reversed(index)) {
+            pos *= -1;
+        }
+
         return pos;
     } else {
         return 0.0;
