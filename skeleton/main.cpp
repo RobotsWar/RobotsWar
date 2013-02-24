@@ -41,7 +41,7 @@ void setup()
     servos_init();
     
     //Begining on WiFly Mode
-    Serial3.begin(115200);
+    Serial3.begin(921600);
     terminal_init(&Serial3);
     
     //Attach the 50Hz interrupt
