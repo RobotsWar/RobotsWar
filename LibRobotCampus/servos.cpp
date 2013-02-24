@@ -246,6 +246,7 @@ void servos_enable_all()
 {
     for (int8_t i=0; i<Servos_count; i++) {
         servos_enable(i, true);
+        delay(21);
     }
     
     digitalWrite(BOARD_LED_PIN, HIGH);
