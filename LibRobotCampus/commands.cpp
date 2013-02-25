@@ -325,7 +325,7 @@ TERMINAL_COMMAND(register,
 TERMINAL_COMMAND(forward,
         "Go to forward mode, the Serial3 will be forwarded to USB and vice-versa. Usage: forward [baudrate]")
 {
-    int baudrate = 115200;
+    int baudrate = 921600;
     char buffer[512];
     unsigned int pos;
     terminal_io()->print("The forward mode will be enabled, ");
