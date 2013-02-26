@@ -11,7 +11,7 @@ joypad = '/dev/input/js0'
 
 # Open the connection
 try:
-    terminal = TerminalControl(robot)
+    terminal = TerminalControl(robot, 30)
 except:
     print('Unable to connect to the robot')
     exit
@@ -26,6 +26,9 @@ except:
 pad.onButtonPressed(14, lambda: terminal.send('Hello!'))
 pad.onButtonReleased(14, lambda: terminal.send('GoodBye!'))
 pad.onAxis(0, lambda v: terminal.send('amp1', v))
+pad.onAxis(1, lambda v: terminal.send('amp2', v))
+pad.onAxis(2, lambda v: terminal.send('amp3', v))
+pad.onAxis(3, lambda v: terminal.send('amp4', v))
 
 try:
     while True:
