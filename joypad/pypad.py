@@ -34,6 +34,36 @@ class PyPadEvent:
 class PyPad:
     def __init__(self, js):
         self.pipe = open(js, 'r')
+        self.bindings = {}
+
+    def appendCallback(self, key, callback):
+        if not key in self.bindings:
+            self.bindings[key] = []
+
+        self.bindings[key] += [callback]
+
+    def onButtonPressed(self, index, callback):
+        self.appendCallback('button/%d/1' % index, callback)
+    
+    def onButtonReleased(self, index, callback):
+        self.appendCallback('button/%d/0' % index, callback)
+   
+    def onAxis(self, index, callback):
+        self.appendCallback('axis/%d' % index, callback)
+
+    def process(self, event):
+        if event.eventType == 'button':
+            key = 'button/%d/%d' % (event.index, event.value)
+        if event.eventType == 'axis':
+            key = 'axis/%d' % event.index
+
+        if key in self.bindings:
+            callbacks = self.bindings[key]
+            for callback in callbacks:
+                if event.eventType == 'button':
+                    callback()
+                else:
+                    callback(event.value)
 
     def getEvent(self):
         msg = []
@@ -43,5 +73,6 @@ class PyPad:
                 if len(msg) == 8:
                     event = PyPadEvent(msg)
                     if event.eventType != None:
+                        self.process(event)
                         return event
                     msg = []
