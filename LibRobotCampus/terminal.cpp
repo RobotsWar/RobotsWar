@@ -25,11 +25,32 @@ static const struct terminal_command *terminal_commands[TERMINAL_MAX_COMMANDS];
 
 static unsigned int terminal_command_count = 0;
 
-static Serial *SerialIO = 0;
+static TerminalIO terminalIO;
 
 static terminal_bar_t terminal_bar;
 
 static bool terminal_echo_mode = true;
+
+TerminalIO::TerminalIO() : io(NULL), silent(false)
+{
+}
+
+bool TerminalIO::hasIO()
+{
+    return io != NULL;
+}
+
+void TerminalIO::setIO(Serial *io_)
+{
+    io = io_;
+}
+
+void TerminalIO::write(uint8 c)
+{
+    if (!silent) {
+        io->write(c);
+    }
+}
 
 /**
  * Registers a command
@@ -79,7 +100,7 @@ TERMINAL_COMMAND(echo, "Switch echo mode. Usage echo [on|off]")
  */
 void terminal_prompt()
 {
-    SerialIO->print(TERMINAL_PROMPT);
+    terminalIO.print(TERMINAL_PROMPT);
 }
 
 /***
@@ -103,11 +124,11 @@ void terminal_execute(char *command_name, unsigned int command_name_length,
     }
 
     if (!command_found) {
-        SerialIO->print("Unknwon command: ");
+        terminalIO.print("Unknwon command: ");
         for (i=0; i<command_name_length; i++) {
-            SerialIO->print((char)terminal_buffer[i]);
+            terminalIO.print((char)terminal_buffer[i]);
         }
-        SerialIO->println();
+        terminalIO.println();
     }
 }
 
@@ -122,7 +143,7 @@ void terminal_process()
     unsigned int argc = 0;
     char* argv[TERMINAL_MAX_ARGUMENTS+1];
     
-    SerialIO->println();
+    terminalIO.println();
 
     strtok_r(terminal_buffer, " ", &saveptr);
     while (
@@ -152,8 +173,9 @@ void terminal_process()
  */
 void terminal_init(Serial *serial)
 {
-    if (serial != 0) {
-        SerialIO = serial;
+    if (serial != NULL) {
+        terminalIO.setIO(serial);
+        terminalIO.silent = false;
     }
     terminal_prompt();
     terminal_bar.escape = true;
@@ -165,15 +187,15 @@ void terminal_init(Serial *serial)
  */
 void terminal_tick()
 {
-    if (SerialIO == 0) {
+    if (!terminalIO.hasIO()) {
         return;
     }
 
     char c;
     uint8 input;
 
-    while (SerialIO->available()) {
-        input = SerialIO->read();
+    while (terminalIO.io->available()) {
+        input = terminalIO.io->read();
         c = (char)input;
         if (c == '\0') {
             continue;
@@ -187,20 +209,20 @@ void terminal_tick()
         } else if (c == '\x7f') {
             if (terminal_pos > 0) {
                 terminal_pos--;
-                SerialIO->print("\x8 \x8");
+                terminalIO.print("\x8 \x8");
             }
         //Special key
         } else if (c == '\x1b') {
             char code[2];
-            while (!SerialIO->available());
-            code[0] = SerialIO->read();
-            while (!SerialIO->available());
-            code[1] = SerialIO->read();
+            while (!terminalIO.io->available());
+            code[0] = terminalIO.io->read();
+            while (!terminalIO.io->available());
+            code[1] = terminalIO.io->read();
         //Others
         } else {
             terminal_buffer[terminal_pos] = c;
             if (terminal_echo_mode) {
-                SerialIO->print(c);
+                terminalIO.print(c);
             }
 
             if (terminal_pos < TERMINAL_BUFFER_SIZE-1) {
@@ -214,9 +236,9 @@ void terminal_tick()
  * Returns Print and Read instance enabling user's command
  * to write and read on serial port
  */
-Serial* terminal_io()
+TerminalIO* terminal_io()
 {
-    return SerialIO;
+    return &terminalIO;
 }
 
 void terminal_bar_init(int min, int max, int pos)
@@ -256,16 +278,16 @@ int terminal_bar_tick()
         terminal_io()->print(terminal_bar.max);
 
         while (true) {
-            while (!terminal_io()->available());
+            while (!terminal_io()->io->available());
             int controlKey = 0;
             bool specialKey = false;
-            char input = (char)terminal_io()->read();
+            char input = (char)terminal_io()->io->read();
             //Detect control characters
             if (input == '\x1b') {
                 specialKey = true;
             } else if (input == '^') {
-                while (!SerialIO->available());
-                input = (char)terminal_io()->read();
+                while (!terminalIO.io->available());
+                input = (char)terminal_io()->io->read();
                 if (input == '[') {
                     specialKey = true;
                 }
@@ -273,10 +295,10 @@ int terminal_bar_tick()
             //Arrow keys
             if (specialKey) {
                 char code[2];
-                while (!SerialIO->available());
-                code[0] = SerialIO->read();
-                while (!SerialIO->available());
-                code[1] = SerialIO->read();
+                while (!terminalIO.io->available());
+                code[0] = terminalIO.io->read();
+                while (!terminalIO.io->available());
+                code[1] = terminalIO.io->read();
                 //Left
                 if (code[0] == '[' && code[1] == 'D') {
                     controlKey = -1;
@@ -319,3 +341,8 @@ bool terminal_bar_escaped()
     return terminal_bar.escape;
 }
 
+
+void terminal_silent(bool silent)
+{
+    terminalIO.silent = silent;
+}

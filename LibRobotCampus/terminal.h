@@ -2,6 +2,21 @@
 #define _TERMINAL_H
 
 #include <wirish/wirish.h>
+#include <wirish/Serial.h>
+#include <wirish/Print.h>
+
+class TerminalIO : public Print
+{
+    public:
+        TerminalIO();
+        virtual void write(uint8 ch);
+
+        void setIO(Serial *io_);
+        bool hasIO();
+
+        Serial *io;
+        bool silent;
+};
 
 /**
  * Maximum length of a command line
@@ -80,7 +95,7 @@ void terminal_tick();
  * Returns the Print and Read instance used 
  * to write on the serial port
  */
-Serial* terminal_io();
+TerminalIO* terminal_io();
 
 /**
  * Initialize the termanl bar structure
@@ -102,6 +117,11 @@ int terminal_bar_tick();
  * have been interrupted
  */
 bool terminal_bar_escaped();
+
+/**
+ * Mute the terminal
+ */
+void terminal_silent(bool silent);
 
 /**
  * ----------------------------------------------------------------------------

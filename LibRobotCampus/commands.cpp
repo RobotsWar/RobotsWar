@@ -332,6 +332,14 @@ TERMINAL_COMMAND(smooth,
     }
 }
 
+TERMINAL_COMMAND(mute, "Mute/Unmute the terminal")
+{
+    if (argc == 1) {
+        int mute = atoi(argv[0]);
+        terminal_silent(mute != 0);
+    }
+}
+
 TERMINAL_COMMAND(forward,
         "Go to forward mode, the Serial3 will be forwarded to USB and vice-versa. Usage: forward [baudrate]")
 {
