@@ -26,6 +26,8 @@ struct servo_t
  */
 static servo_t Servos[SERVOS_MAX_NB];
 static uint8_t Servos_count = 0;
+static bool Servos_enable_smoothing = false;
+static double Servos_smooth = 0.0;
 
 /**
  * Initialize timer
@@ -209,6 +211,16 @@ void servos_command(uint8_t index, float pos)
     if (index == -1 || index >= Servos_count) {
         return;
     }
+    
+    if (Servos_enable_smoothing) {
+        float old_pos = servos_get_command(index);
+        if (pos > old_pos + Servos_smooth) {
+            pos = old_pos + Servos_smooth;
+        }
+        if (pos < old_pos - Servos_smooth) {
+            pos = old_pos - Servos_smooth;
+        }
+    }
 
     if (Servos[index].reversed) {
         pos *= -1;
@@ -279,3 +291,8 @@ void servos_attach_interrupt(voidFuncPtr func)
     timer.resume();
 }
 
+void servos_set_smoothing(double smooth)
+{
+    Servos_enable_smoothing = (smooth > 0);
+    Servos_smooth = smooth;
+}

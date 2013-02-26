@@ -322,6 +322,16 @@ TERMINAL_COMMAND(register,
     }
 }
 
+TERMINAL_COMMAND(smooth,
+        "Sets the smoothing")
+{
+    if (argc == 1) {
+        double smooth = atof(argv[0]);
+        servos_set_smoothing(smooth);
+        terminal_io()->println("Smoothing set");
+    }
+}
+
 TERMINAL_COMMAND(forward,
         "Go to forward mode, the Serial3 will be forwarded to USB and vice-versa. Usage: forward [baudrate]")
 {

@@ -128,5 +128,10 @@ void servos_flush();
  */
 void servos_attach_interrupt(voidFuncPtr func);
 
+/**
+ * Sets the servos smoothing
+ */
+void servos_set_smoothing(double smooth);
+
 #endif
 
