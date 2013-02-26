@@ -13,6 +13,9 @@ LibMaple/TAGS
 cscope*
 .gdbinit
 
+# Python compiled files
+**.pyc
+
 # skeleton
 skeleton/*
 # Except skeleton
