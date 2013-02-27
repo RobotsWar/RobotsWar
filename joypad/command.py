@@ -30,6 +30,18 @@ pad.onAxis(1, lambda v: terminal.send('amp2', v))
 pad.onAxis(2, lambda v: terminal.send('amp3', v))
 pad.onAxis(3, lambda v: terminal.send('amp4', v))
 
+enabled = False
+def ToggleEnable():
+    global enabled, terminal
+    enabled = not enabled
+    if enabled:
+        terminal.send('start')
+    else:
+        terminal.send('stop')
+
+pad.onButtonPressed(16, ToggleEnable)
+
+
 try:
     while True:
         event = pad.getEvent()
