@@ -4,9 +4,8 @@
 from pypad import *
 from terminalcontrol import *
 
-#robot = ('10.0.0.1', 2000)
-robot = ('127.0.0.1', 2000)
-joypad = '/dev/input/js0'
+robot = ('10.0.0.1', 2000) # Robot address
+joypad = '/dev/input/js0'  # Joypad device
 
 
 # Open the connection
@@ -23,6 +22,7 @@ except:
     print('Unable to open the Joypad')
     exit
 
+# Bindings
 pad.onButtonPressed(14, lambda: terminal.send('Hello!'))
 pad.onButtonReleased(14, lambda: terminal.send('GoodBye!'))
 pad.onAxis(0, lambda v: terminal.send('amp1', v))
