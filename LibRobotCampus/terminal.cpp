@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include "terminal.h"
 
@@ -52,6 +53,13 @@ void TerminalIO::write(uint8 c)
     }
 }
 
+void TerminalIO::write(const void *buf, uint32 len)
+{
+    if (!silent) {
+        io->write(buf, len);
+    }
+}
+
 /**
  * Registers a command
  */
@@ -65,6 +73,7 @@ void terminal_register(const struct terminal_command *command)
  */
 TERMINAL_COMMAND(help, "Displays the help about commands")
 {
+    char buffer[256];
     unsigned int i;
 
     terminal_io()->println("Available commands:");
@@ -72,12 +81,18 @@ TERMINAL_COMMAND(help, "Displays the help about commands")
 
     for (i=0; i<terminal_command_count; i++) {
         const struct terminal_command *command = terminal_commands[i];
+        int namesize = strlen(command->name);
+        int descsize = strlen(command->description);
 
-        terminal_io()->print(command->name);
-        terminal_io()->println(":");
-        terminal_io()->print("    ");
-        terminal_io()->print(command->description);
-        terminal_io()->println();
+        memcpy(buffer, command->name, namesize);
+        buffer[namesize++] = ':';
+        buffer[namesize++] = '\r';
+        buffer[namesize++] = '\n';
+        buffer[namesize++] = '\t';
+        memcpy(buffer+namesize, command->description, descsize);
+        buffer[namesize+descsize++] = '\r';
+        buffer[namesize+descsize++] = '\n';
+        terminal_io()->write(buffer, namesize+descsize);
     }
 }
 

@@ -10,6 +10,7 @@ class TerminalIO : public Print
     public:
         TerminalIO();
         virtual void write(uint8 ch);
+        virtual void write(const void *buf, uint32 len);
 
         void setIO(Serial *io_);
         bool hasIO();
