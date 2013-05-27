@@ -64,6 +64,7 @@ void loop()
 
     //Handle @50Hz interrupt
     if (flag) {
+        flag = false;
         tick();
     }
 }
