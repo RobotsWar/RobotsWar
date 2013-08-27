@@ -1,7 +1,9 @@
 #ifndef _ROBOTCAMPUS_FUNCTION_H
 #define _ROBOTCAMPUS_FUNCTION_H
 
+#ifndef FUNCTION_MAX_POINTS
 #define FUNCTION_MAX_POINTS 16
+#endif
 
 class Function
 {
