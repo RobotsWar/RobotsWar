@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+import time
+
 """
     A pad event, fields are :
 
@@ -33,8 +35,22 @@ class PyPadEvent:
 """
 class PyPad:
     def __init__(self, js):
-        self.pipe = open(js, 'r')
+        self.js = js
+        self.open()
         self.bindings = {}
+
+    def open(self):
+        self.connected = False
+        while not self.connected:
+            try:
+                print('JOYPAD: Opening %s' % self.js)
+                self.pipe = open(self.js, 'r')
+                self.connected = True
+                print('JOYPAD: Opened')
+            except:
+                self.connected = False
+                time.sleep(0.3)
+                print('JOYPAD: %s Not found, retrying...' % self.js)
 
     def appendCallback(self, key, callback):
         if not key in self.bindings:
@@ -68,11 +84,18 @@ class PyPad:
     def getEvent(self):
         msg = []
         while True:
-            for char in self.pipe.read(1):
-                msg += [ord(char)]
-                if len(msg) == 8:
-                    event = PyPadEvent(msg)
-                    if event.eventType != None:
-                        self.process(event)
-                        return event
-                    msg = []
+            try:
+                for char in self.pipe.read(1):
+                    msg += [ord(char)]
+                    if len(msg) == 8:
+                        event = PyPadEvent(msg)
+                        if event.eventType != None:
+                            self.process(event)
+                            return event
+                        msg = []
+            except KeyboardInterrupt:
+                raise
+            except:
+                print('JOYPAD: Disconnected')
+                self.open()
+                msg = []
