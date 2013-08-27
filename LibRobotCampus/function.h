@@ -1,20 +1,20 @@
-#ifndef _SPLINE_H
-#define _SPLINE_H
+#ifndef _FUNCTION_H
+#define _FUNCTION_H
 
-#define SPLINE_MAX_POINTS 16
+#define FUNCTION_MAX_POINTS 16
 
-class Spline
+class Function
 {
     public:
-        Spline();
+        Function();
 
         /**
-         * Add a point (x, y) to the spline
+         * Add a point (x, y) to the function
          */
         void addPoint(double x, double y);
 
         /**
-         * Gets the xMax of the spline
+         * Gets the xMax of the function
          */
         double getXMax();
 
@@ -24,15 +24,15 @@ class Spline
         double get(double x);
 
         /**
-         * Gets the value for the given x, modulo the size of the spline
+         * Gets the value for the given x, modulo the size of the function
          */
         double getMod(double x);
 
     protected:
         /**
-         * Spline points
+         * Function points
          */
-        double points[SPLINE_MAX_POINTS][2];
+        double points[FUNCTION_MAX_POINTS][2];
 
         /**
          * Number of points
@@ -43,7 +43,7 @@ class Spline
          * The nth item of this array is the slope between the nth point and the
          * n+1th point
          */
-        double ds[SPLINE_MAX_POINTS-1];
+        double ds[FUNCTION_MAX_POINTS-1];
 };
 
 #endif

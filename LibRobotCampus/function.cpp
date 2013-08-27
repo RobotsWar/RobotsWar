@@ -1,10 +1,10 @@
-#include "spline.h"
+#include "function.h"
 
-Spline::Spline() : nbPoints(0)
+Function::Function() : nbPoints(0)
 {
 }
 
-double Spline::getXMax()
+double Function::getXMax()
 {
     if (nbPoints == 0) {
         return 0.0;
@@ -13,9 +13,9 @@ double Spline::getXMax()
     return points[nbPoints-1][0];
 }
 
-void Spline::addPoint(double x, double y)
+void Function::addPoint(double x, double y)
 {
-    if (nbPoints < SPLINE_MAX_POINTS) {
+    if (nbPoints < FUNCTION_MAX_POINTS) {
         points[nbPoints][0] = x;
         points[nbPoints][1] = y;
 
@@ -28,7 +28,7 @@ void Spline::addPoint(double x, double y)
     }
 }
 
-double Spline::get(double x)
+double Function::get(double x)
 {
     int i;
     
@@ -45,7 +45,7 @@ double Spline::get(double x)
     return points[i-1][1]+ds[i-1]*(x-points[i-1][0]);
 }
 
-double Spline::getMod(double x)
+double Function::getMod(double x)
 {
     double maxX = getXMax();
 
