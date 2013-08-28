@@ -5,16 +5,8 @@
 
 volatile bool flag = false;
 volatile bool isUSB = false;
-volatile static double t = 0;
 
-/**
- * Voir la valeur du temps
- */
-TERMINAL_COMMAND(time, "Voir le temps")
-{
-    terminal_io()->print("T=");
-    terminal_io()->println(t);
-}
+TERMINAL_PARAMETER_DOUBLE(t, "Temps", 0.0);
 
 /**
  * Foncton appellée à 50hz, c'est ici que vous pouvez mettre
