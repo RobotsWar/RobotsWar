@@ -5,30 +5,33 @@
 
 volatile bool flag = false;
 volatile bool isUSB = false;
-volatile int counter = 0;
+volatile static double t = 0;
 
 /**
- * Example counter, incremented @50hz
+ * Voir la valeur du temps
  */
-TERMINAL_COMMAND(counter, "See the counter")
+TERMINAL_COMMAND(time, "Voir le temps")
 {
-    terminal_io()->print("Counter: ");
-    terminal_io()->println(counter);
+    terminal_io()->print("T=");
+    terminal_io()->println(t);
 }
 
 /**
- * Function called @50Hz
+ * Foncton appellée à 50hz, c'est ici que vous pouvez mettre
+ * à jour les angles moteurs etc.
  */
 void tick()
 {
-    counter++;
+    t += 0.02; // 20ms
 }
 
 /**
- * Interrupt @50hz, set the flag
+ * Interruption @50hz
  */
 void setFlag()
 {
+    // Ne pas écrire de code ici à moins de vraiment
+    // savoir ce que vous faites
     flag = true;
 }
 
@@ -37,32 +40,37 @@ void setFlag()
  */
 void setup()
 {
-    //Initialize robotcampus servos
+    // Intialise les servomoteurs
     servos_init();
     
-    //Begining on WiFly Mode
+    // Initialise le mode WiFly
     Serial3.begin(921600);
     terminal_init(&Serial3);
     
-    //Attach the 50Hz interrupt
+    // Définit l'interruption @50hz
     servos_attach_interrupt(setFlag);
+
+    // Configure la led de la board
+    pinMode(BOARD_LED_PIN, OUTPUT);
+    digitalWrite(BOARD_LED_PIN, LOW);
 }
 
 /**
- * Main loop
+ * Boucle principale
  */
 void loop()
 {
-    //Handle terminal communication
+    // Gère la communication du terminal
     terminal_tick();
 
-    //If something is available on USB, switching to USB
+    // Si quelque chose est disponible au niveau de l'USB, switch
+    // sur le port
     if (SerialUSB.available() && !isUSB) {
         isUSB = true;
         terminal_init(&SerialUSB);
     }
 
-    //Handle @50Hz interrupt
+    // Exécute le code @50hz
     if (flag) {
         flag = false;
         tick();
