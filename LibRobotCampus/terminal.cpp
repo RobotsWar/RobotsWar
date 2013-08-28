@@ -117,12 +117,29 @@ TERMINAL_COMMAND(help, "Displays the help about commands")
     displayHelp(false);
 }
 
+void terminal_params_show()
+{
+    unsigned int i;
+
+    for (i=0; i<terminal_command_count; i++) {
+        const struct terminal_command *command = terminal_commands[i];
+
+        if (command->parameter) {
+            command->command(0, NULL);
+        }
+    }
+}
+
 /**
  * Display available parameters
  */
-TERMINAL_COMMAND(parameters, "Displays the available parameters")
+TERMINAL_COMMAND(params, "Displays the available parameters. Usage: params [show]")
 {
-    displayHelp(true);
+    if (argc && strcmp(argv[0], "show")==0) {
+        terminal_params_show();
+    } else {
+        displayHelp(true);
+    }
 }
 
 /**
