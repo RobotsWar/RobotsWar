@@ -143,6 +143,8 @@ struct terminal_command
     char *name;
     char *description;
     terminal_command_fn *command;
+    bool parameter;
+    char *parameter_type;
 };
 
 /**
@@ -150,7 +152,7 @@ struct terminal_command
  */
 void terminal_register(const struct terminal_command *command);
 
-#define TERMINAL_COMMAND(name, description) terminal_command_fn terminal_command_ ## name; \
+#define TERMINAL_COMMAND_INTERNAL(name, description, parameter, parameterType) terminal_command_fn terminal_command_ ## name; \
     \
     char terminal_command_name_ ## name [] = #name; \
     char terminal_command_description_ ## name [] = description; \
@@ -158,7 +160,9 @@ void terminal_register(const struct terminal_command *command);
     struct terminal_command terminal_command_definition_ ## name = { \
         terminal_command_name_ ## name , \
         terminal_command_description_ ## name , \
-        terminal_command_ ## name \
+        terminal_command_ ## name, \
+        parameter, \
+        parameterType \
     }; \
     \
     __attribute__((constructor)) \
@@ -168,10 +172,14 @@ void terminal_register(const struct terminal_command *command);
     \
     void terminal_command_ ## name (unsigned int argc, char *argv[])
 
+#define TERMINAL_COMMAND(name, description) \
+    TERMINAL_COMMAND_INTERNAL(name, description, false, NULL)
+
 #define TERMINAL_PARAMETER(name, description, startValue, type, conversion) \
     volatile static type name = startValue; \
+    char terminal_parameter_type_ ## name [] = #type; \
     \
-    TERMINAL_COMMAND(name, description) \
+    TERMINAL_COMMAND_INTERNAL(name, description, true, terminal_parameter_type_ ## name) \
     { \
         type g; \
         if (argc) { \

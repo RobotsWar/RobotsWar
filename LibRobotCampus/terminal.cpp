@@ -68,21 +68,28 @@ void terminal_register(const struct terminal_command *command)
     terminal_commands[terminal_command_count++] = command;
 }
 
-/**
- * Internal helping command
- */
-TERMINAL_COMMAND(help, "Displays the help about commands")
+static void displayHelp(bool parameter)
 {
     char buffer[256];
     unsigned int i;
 
-    terminal_io()->println("Available commands:");
+    if (parameter) {
+        terminal_io()->println("Available parameters:");
+    } else {
+        terminal_io()->println("Available commands:");
+    }
     terminal_io()->println();
 
     for (i=0; i<terminal_command_count; i++) {
         const struct terminal_command *command = terminal_commands[i];
+
+        if (command->parameter != parameter) {
+            continue;
+        }
+
         int namesize = strlen(command->name);
         int descsize = strlen(command->description);
+        int typesize = (command->parameter_type == NULL) ? 0 : strlen(command->parameter_type);
 
         memcpy(buffer, command->name, namesize);
         buffer[namesize++] = ':';
@@ -90,10 +97,32 @@ TERMINAL_COMMAND(help, "Displays the help about commands")
         buffer[namesize++] = '\n';
         buffer[namesize++] = '\t';
         memcpy(buffer+namesize, command->description, descsize);
-        buffer[namesize+descsize++] = '\r';
-        buffer[namesize+descsize++] = '\n';
-        terminal_io()->write(buffer, namesize+descsize);
+        if (typesize) {
+            buffer[namesize+descsize++] = ' ';
+            buffer[namesize+descsize++] = '(';
+            memcpy(buffer+namesize+descsize, command->parameter_type, typesize);
+            buffer[namesize+descsize+typesize++] = ')';
+        }
+        buffer[namesize+descsize+typesize++] = '\r';
+        buffer[namesize+descsize+typesize++] = '\n';
+        terminal_io()->write(buffer, namesize+descsize+typesize);
     }
+}
+
+/**
+ * Internal helping command
+ */
+TERMINAL_COMMAND(help, "Displays the help about commands")
+{
+    displayHelp(false);
+}
+
+/**
+ * Display available parameters
+ */
+TERMINAL_COMMAND(parameters, "Displays the available parameters")
+{
+    displayHelp(true);
 }
 
 /**
@@ -118,6 +147,21 @@ void terminal_prompt()
     terminalIO.print(TERMINAL_PROMPT);
 }
 
+const struct terminal_command *terminal_find_command(char *command_name, unsigned int command_name_length)
+{
+    unsigned int i;
+
+    for (i=0; i<terminal_command_count; i++) {
+        const struct terminal_command *command = terminal_commands[i];
+
+        if (strlen(command->name) == command_name_length && strncmp(terminal_buffer, command->name, command_name_length) == 0) {
+            return command;
+        }
+    }
+
+    return NULL;
+}
+
 /***
  * Executes the given command with given parameters
  */
@@ -125,24 +169,45 @@ void terminal_execute(char *command_name, unsigned int command_name_length,
     unsigned int argc, char **argv)
 {
     unsigned int i;
-    char command_found = 0;
+    const struct terminal_command *command;
+    
+    // Try to find and execute the command
+    command = terminal_find_command(command_name, command_name_length);
+    if (command != NULL) {
+        command->command(argc, argv);
+    }
 
-    for (i=0; i<terminal_command_count; i++) {
-        const struct terminal_command *command = terminal_commands[i];
+    // If it fails, try to parse the command as an allocation (a=b)
+    if (command == NULL) {
+        for (i=0; i<command_name_length; i++) {
+            if (command_name[i] == '=') {
+                command_name[i] = '\0';
+                command_name_length = strlen(command_name);
+                command = terminal_find_command(command_name, command_name_length);
 
-        if (strlen(command->name) == command_name_length && strncmp(terminal_buffer, command->name, command_name_length) == 0) {
-            command->command(argc, argv);
+                if (command && command->parameter) {
+                    argv[0] = command_name+i+1;
+                    argv[1] = NULL;
+                    argc = 1;
+                    command->command(argc, argv);
+                } else {
+                    command = NULL;
+                }
 
-            command_found = 1;
-            break;
+                if (!command) {
+                    terminalIO.print("Unknown parameter: ");
+                    terminalIO.write(command_name, command_name_length);
+                    terminalIO.println();
+                    return;
+                }
+            }
         }
     }
 
-    if (!command_found) {
-        terminalIO.print("Unknwon command: ");
-        for (i=0; i<command_name_length; i++) {
-            terminalIO.print((char)terminal_buffer[i]);
-        }
+    // If it fails again, display the "unknown command" message
+    if (command == NULL) {
+        terminalIO.print("Unknown command: ");
+        terminalIO.write(command_name, command_name_length);
         terminalIO.println();
     }
 }
