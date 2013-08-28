@@ -20,6 +20,7 @@ struct terminal_bar_t
 
 static char terminal_buffer[TERMINAL_BUFFER_SIZE];
 
+static unsigned int terminal_last_pos = 0;
 static unsigned int terminal_pos = 0;
 
 static const struct terminal_command *terminal_commands[TERMINAL_MAX_COMMANDS];
@@ -261,6 +262,7 @@ void terminal_process()
         terminal_execute(terminal_buffer, command_name_length, argc, argv);
     }
 
+    terminal_last_pos = terminal_pos;
     terminal_pos = 0;
     terminal_prompt();
 }
@@ -300,6 +302,17 @@ void terminal_tick()
 
         //Return key
         if (c == '\r' || c == '\n') {
+            if (terminal_pos == 0) { 
+                // If the user pressed no keys, restore the last 
+                // command and run it again
+                unsigned int i;
+                for (i=0; i<terminal_last_pos; i++) {
+                    if (terminal_buffer[i] == '\0') {
+                        terminal_buffer[i] = ' ';
+                    }
+                }
+                terminal_pos = terminal_last_pos;
+            }
             terminal_buffer[terminal_pos] = '\0';
             terminal_process();
         //Back key
