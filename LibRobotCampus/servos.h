@@ -1,5 +1,5 @@
-#ifndef _SERVOS_H
-#define _SERVOS_H
+#ifndef _ROBOTCAMPUS_SERVOS_H
+#define _ROBOTCAMPUS_SERVOS_H
 
 #include <wirish/wirish.h>
 

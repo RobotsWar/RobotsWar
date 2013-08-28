@@ -17,7 +17,7 @@ CFLAGS_$(d) = $(LIBMAPLE_INCLUDES) $(WIRISH_INCLUDES) $(LIBROBOT_INCLUDES) -Wall
 cppSRCS_$(d) := terminal.cpp
 cppSRCS_$(d) += servos.cpp
 cppSRCS_$(d) += commands.cpp
-cppSRCS_$(d) += spline.cpp
+cppSRCS_$(d) += function.cpp
 
 cppFILES_$(d) := $(cppSRCS_$(d):%=$(d)/%)
 
