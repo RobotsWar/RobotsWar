@@ -168,5 +168,32 @@ void terminal_register(const struct terminal_command *command);
     \
     void terminal_command_ ## name (unsigned int argc, char *argv[])
 
+#define TERMINAL_PARAMETER(name, description, startValue, type, conversion) \
+    volatile static type name = startValue; \
+    \
+    TERMINAL_COMMAND(name, description) \
+    { \
+        type g; \
+        if (argc) { \
+            g = conversion(argv[0]); \
+            name = g; \
+        } \
+        terminal_io()->print( #name ); \
+        terminal_io()->print("="); \
+        terminal_io()->println( name ); \
+    }
+
+#define TERMINAL_PARAMETER_FLOAT(name, description, startValue) \
+    TERMINAL_PARAMETER(name, description, startValue, float, atof)
+
+#define TERMINAL_PARAMETER_DOUBLE(name, description, startValue) \
+    TERMINAL_PARAMETER(name, description, startValue, double, atof)
+
+#define TERMINAL_PARAMETER_INT(name, description, startValue) \
+    TERMINAL_PARAMETER(name, description, startValue, int, atoi)
+
+#define TERMINAL_PARAMETER_BOOL(name, description, startValue) \
+    TERMINAL_PARAMETER(name, description, startValue, bool, (bool)atoi)
+
 #endif // _TERMINAL_H
 
