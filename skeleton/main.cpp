@@ -3,6 +3,9 @@
 #include <servos.h>
 #include <terminal.h>
 
+// WiFly is routed on Serial3
+#define WiFly Serial3
+
 volatile bool flag = false;
 volatile bool isUSB = false;
 
@@ -36,8 +39,8 @@ void setup()
     servos_init();
     
     // Initialise le mode WiFly
-    Serial3.begin(921600);
-    terminal_init(&Serial3);
+    WiFly.begin(921600);
+    terminal_init(&WiFly);
     
     // Définit l'interruption @50hz
     servos_attach_interrupt(setFlag);
@@ -60,6 +63,11 @@ void loop()
     if (SerialUSB.available() && !isUSB) {
         isUSB = true;
         terminal_init(&SerialUSB);
+    }
+
+    if (WiFly.available() && isUSB) {
+        isUSB = false;
+        terminal_init(&WiFly);
     }
 
     // Exécute le code @50hz
