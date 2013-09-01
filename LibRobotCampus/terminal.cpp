@@ -20,6 +20,7 @@ struct terminal_bar_t
 
 static char terminal_buffer[TERMINAL_BUFFER_SIZE];
 
+static bool terminal_last_ok = false;
 static unsigned int terminal_last_pos = 0;
 static unsigned int terminal_pos = 0;
 
@@ -183,7 +184,7 @@ const struct terminal_command *terminal_find_command(char *command_name, unsigne
 /***
  * Executes the given command with given parameters
  */
-void terminal_execute(char *command_name, unsigned int command_name_length, 
+bool terminal_execute(char *command_name, unsigned int command_name_length, 
     unsigned int argc, char **argv)
 {
     unsigned int i;
@@ -216,7 +217,7 @@ void terminal_execute(char *command_name, unsigned int command_name_length,
                     terminalIO.print("Unknown parameter: ");
                     terminalIO.write(command_name, command_name_length);
                     terminalIO.println();
-                    return;
+                    return false;
                 }
             }
         }
@@ -227,7 +228,10 @@ void terminal_execute(char *command_name, unsigned int command_name_length,
         terminalIO.print("Unknown command: ");
         terminalIO.write(command_name, command_name_length);
         terminalIO.println();
+        return false;
     }
+
+    return true;
 }
 
 /***
@@ -259,7 +263,9 @@ void terminal_process()
     command_name_length = strlen(terminal_buffer);
 
     if (command_name_length > 0) {
-        terminal_execute(terminal_buffer, command_name_length, argc, argv);
+        terminal_last_ok = terminal_execute(terminal_buffer, command_name_length, argc, argv);
+    } else {
+        terminal_last_ok = false;
     }
 
     terminal_last_pos = terminal_pos;
@@ -302,7 +308,7 @@ void terminal_tick()
 
         //Return key
         if (c == '\r' || c == '\n') {
-            if (terminal_pos == 0) { 
+            if (terminal_pos == 0 && terminal_last_ok) { 
                 // If the user pressed no keys, restore the last 
                 // command and run it again
                 unsigned int i;
