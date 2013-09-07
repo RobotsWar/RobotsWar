@@ -58,11 +58,6 @@ static void internal_loop()
         terminal_init(&SerialUSB);
     }
 
-    if (WiFly.available() && isUSB) {
-        isUSB = false;
-        terminal_init(&WiFly);
-    }
-
     // Exécute le code @50hz
     if (flag) {
         flag = false;
