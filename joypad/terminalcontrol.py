@@ -17,6 +17,10 @@ class TerminalControl:
         self.thread = threading.Thread(None, self.DispatchThread, None, ())
         self.thread.start()
 
+    def disconnect(self):
+        print('ROBOT: Disconnecting')
+        self.socket.close();
+
     def connect(self):
         if self.running:
             try:

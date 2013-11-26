@@ -30,6 +30,10 @@ pad.onAxis(1, lambda v: terminal.send('amp2', v))
 pad.onAxis(2, lambda v: terminal.send('amp3', v))
 pad.onAxis(3, lambda v: terminal.send('amp4', v))
 
+# Forcing to disconnect
+pad.onButtonReleased(0, lambda: terminal.disconnect())
+
+# Enabling/disabling the robot
 enabled = False
 def ToggleEnable():
     global enabled, terminal
@@ -40,7 +44,6 @@ def ToggleEnable():
         terminal.send('stop')
 
 pad.onButtonPressed(16, ToggleEnable)
-
 
 try:
     while True:
