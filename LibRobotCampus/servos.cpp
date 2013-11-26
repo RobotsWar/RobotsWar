@@ -34,12 +34,8 @@ HardwareTimer Servos_timer(1);
 static volatile int Servos_current;
 #define SERVO_FOR_CHANNEL(channel) (channel*SERVOS_PER_CHANNEL+Servos_current)
 
-TERMINAL_PARAMETER_INT(xxx, "Debug", 0);
-
 static void _servos_update(int channel)
 {
-    xxx |= (1<<channel);
-    return;
     int index = SERVO_FOR_CHANNEL(channel);
 
     if (index < SERVOS_MAX_NB) {

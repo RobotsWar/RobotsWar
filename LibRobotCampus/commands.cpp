@@ -3,8 +3,6 @@
 #include "terminal.h"
 #include "servos.h"
 
-#ifndef DISABLE_ROBOTCAMPUS_COMMANDS
-
 TERMINAL_COMMAND(command_ui, 
     "Set position of a servo with UI. Usage: command_ui [label]")
 {
@@ -70,6 +68,18 @@ TERMINAL_COMMAND(calibrate_ui,
     } else {
         terminal_io()->println("Bad usage");
     }
+}
+
+TERMINAL_COMMAND(start, "Enable all the servos")
+{
+    servos_enable_all();
+    terminal_io()->println("OK");
+}
+
+TERMINAL_COMMAND(stop, "Disable all servos")
+{
+    servos_disable_all();
+    terminal_io()->println("OK");
 }
 
 TERMINAL_COMMAND(reset, 
@@ -342,8 +352,6 @@ TERMINAL_COMMAND(register,
     }
 }
 
-#endif // DISABLE_ROBOTCAMPUS_COMMANDS
-
 TERMINAL_COMMAND(smooth,
         "Sets the smoothing")
 {
@@ -393,16 +401,4 @@ TERMINAL_COMMAND(forward,
             Serial3.write(SerialUSB.read());
         }
     }
-}
-
-TERMINAL_COMMAND(start, "Enable all the servos")
-{
-    servos_enable_all();
-    terminal_io()->println("OK");
-}
-
-TERMINAL_COMMAND(stop, "Disable all servos")
-{
-    servos_disable_all();
-    terminal_io()->println("OK");
 }
