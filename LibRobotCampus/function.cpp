@@ -4,6 +4,11 @@ Function::Function() : nbPoints(0)
 {
 }
 
+void Function::clear()
+{
+    nbPoints = 0;
+}
+
 double Function::getXMax()
 {
     if (nbPoints == 0) {

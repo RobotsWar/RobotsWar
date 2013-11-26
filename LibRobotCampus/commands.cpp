@@ -35,14 +35,14 @@ TERMINAL_COMMAND(calibrate_ui,
             servos_enable(i, true);
             //Min
             terminal_io()->println("Select min position:");
-            terminal_bar_init(0, 3*SERVOS_TIMERS_OVERFLOW/10, servos_get_pos(i));
+            terminal_bar_init(0, SERVOS_TIMERS_OVERFLOW, servos_get_pos(i));
             while (terminal_bar_escaped() == false) {
                 min = (uint16_t)terminal_bar_tick();
                 servos_set_pos(i, min);
             }
             //Max
             terminal_io()->println("Select max position:");
-            terminal_bar_init(min, 3*SERVOS_TIMERS_OVERFLOW/10, min);
+            terminal_bar_init(min, SERVOS_TIMERS_OVERFLOW, min);
             while (terminal_bar_escaped() == false) {
                 max = (uint16_t)terminal_bar_tick();
                 servos_set_pos(i, max);
@@ -138,6 +138,36 @@ TERMINAL_COMMAND(position,
         if (i != (uint8_t)-1) {
             servos_set_pos(i, pos);
             terminal_io()->println("OK");
+        } else {
+            terminal_io()->println("Unknown label");
+        }
+    } else {
+        terminal_io()->println("Bad usage");
+    }
+}
+
+TERMINAL_COMMAND(sinus,
+    "Output a sinus. Usage: sinus [label] [amplitude] [time]"
+    )
+{
+    if (argc >= 1) {
+        uint8_t i = servos_index(argv[0]);
+        float amplitude = 40;
+        float timeGain = 1.0;
+        if (argc == 2) {
+            amplitude = atof(argv[1]);
+        }
+        if (argc == 3) {
+            timeGain = atof(argv[2]);
+        }
+        if (i != (uint8_t)-1) {
+            double t = 0;
+            terminal_io()->println("Press a key to stop");
+            while (!terminal_io()->io->available()) {
+                t += 0.2;
+                servos_command(i, sin(timeGain*t/4.0)*amplitude);
+                delay(20);
+            }
         } else {
             terminal_io()->println("Unknown label");
         }

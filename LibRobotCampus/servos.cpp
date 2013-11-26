@@ -24,10 +24,61 @@ struct servo_t
 /**
  * Global servos container
  */
-static servo_t Servos[SERVOS_MAX_NB];
-static uint8_t Servos_count = 0;
-static bool Servos_enable_smoothing = false;
-static double Servos_smooth = 0.0;
+static volatile servo_t Servos[SERVOS_MAX_NB];
+static volatile uint8_t Servos_count = 0;
+static volatile bool Servos_enable_smoothing = false;
+static volatile double Servos_smooth = 0.0;
+HardwareTimer Servos_timer(1);
+
+#define SERVOS_CHANNELS (SERVOS_MAX_NB/SERVOS_PER_CHANNEL)
+static volatile int Servos_current;
+#define SERVO_FOR_CHANNEL(channel) (channel*SERVOS_PER_CHANNEL+Servos_current)
+
+TERMINAL_PARAMETER_INT(xxx, "Debug", 0);
+
+static void _servos_update(int channel)
+{
+    xxx |= (1<<channel);
+    return;
+    int index = SERVO_FOR_CHANNEL(channel);
+
+    if (index < SERVOS_MAX_NB) {
+        if (Servos[index].enabled) {
+            digitalWrite(Servos[index].pin, LOW);
+        }
+    }
+}
+
+static void _servos_compare1_irq()
+{
+    _servos_update(0);
+}
+static void _servos_compare2_irq()
+{
+    _servos_update(1);
+}
+static void _servos_compare3_irq()
+{
+    _servos_update(2);
+}
+    
+static void _servos_ovf()
+{
+    Servos_current++;
+    if (Servos_current >= SERVOS_PER_CHANNEL) {
+        Servos_current = 0;
+    }
+
+    for (unsigned int channel=0; channel<SERVOS_CHANNELS; channel++) {
+        int index = SERVO_FOR_CHANNEL(channel);
+        if (Servos[index].enabled) {
+            digitalWrite(Servos[index].pin, HIGH);
+            Servos_timer.setCompare(TIMER_CH1+channel, Servos[index].pos);
+        } else {
+            Servos_timer.setCompare(TIMER_CH1+channel, SERVOS_TIMERS_OVERFLOW/2);
+        }
+    }
+}
 
 /**
  * Initialize timer
@@ -35,12 +86,34 @@ static double Servos_smooth = 0.0;
  */
 void initTimer(uint8_t i)
 {
-    HardwareTimer timer(i);
-    timer.pause();
-    timer.setPrescaleFactor(SERVOS_TIMERS_PRESCALE);
-    timer.setOverflow(SERVOS_TIMERS_OVERFLOW);
-    timer.refresh();
-    timer.resume();
+    Servos_timer.pause();
+    Servos_timer.setPrescaleFactor(SERVOS_TIMERS_PRESCALE);
+    Servos_timer.setOverflow(SERVOS_TIMERS_OVERFLOW);
+
+    Servos_timer.setMode(TIMER_CH1, TIMER_OUTPUT_COMPARE);
+    Servos_timer.setMode(TIMER_CH2, TIMER_OUTPUT_COMPARE);
+    Servos_timer.setMode(TIMER_CH3, TIMER_OUTPUT_COMPARE);
+    Servos_timer.setMode(TIMER_CH4, TIMER_OUTPUT_COMPARE);
+
+    Servos_timer.setCompare(TIMER_CH1, SERVOS_TIMERS_OVERFLOW/2);
+    Servos_timer.attachCompare1Interrupt(_servos_compare1_irq);
+
+    Servos_timer.setCompare(TIMER_CH2, SERVOS_TIMERS_OVERFLOW/2);
+    Servos_timer.attachCompare2Interrupt(_servos_compare2_irq);
+    
+    Servos_timer.setCompare(TIMER_CH3, SERVOS_TIMERS_OVERFLOW/2);
+    Servos_timer.attachCompare3Interrupt(_servos_compare3_irq);
+
+    Servos_timer.setCompare(TIMER_CH4, 0);
+    Servos_timer.attachCompare4Interrupt(_servos_ovf);
+
+    Servos_timer.refresh();
+    Servos_timer.resume();
+}
+
+static void servos_configure_timer()
+{
+    initTimer(SERVOS_TIMER);
 }
 
 void button_pressed()
@@ -51,12 +124,21 @@ void button_pressed()
 void servos_init()
 {
     /**
+     * Disabling all servos entries
+     */
+    for (int i=0; i<SERVOS_MAX_NB; i++) {
+        Servos[i].enabled = false;
+    }
+
+    /**
+     * Initializing current servos for channels to 0
+     */
+    Servos_current = 0;
+
+    /**
      * Set up hardware timer
      */
-    initTimer(1);
-    initTimer(2);
-    initTimer(3);
-    initTimer(4);
+    servos_configure_timer();
 
     /**
      * Set up board led and button
@@ -71,7 +153,7 @@ uint8_t servos_register(uint8_t pin, char* label)
     if (Servos_count < SERVOS_MAX_NB) {
         for (uint8_t i=0;i<Servos_count;i++) {
             if (
-                strncmp(Servos[i].label, label, SERVOS_ID_LENGTH) == 0 ||
+                strncmp((char*)Servos[i].label, label, SERVOS_ID_LENGTH) == 0 ||
                 Servos[i].pin == pin
             ) {
                 return -1;
@@ -87,11 +169,16 @@ uint8_t servos_register(uint8_t pin, char* label)
         Servos[Servos_count].enabled = false;
         Servos[Servos_count].steps_per_degree = DEFAULT_STEPS_PER_DEGREE;
         if (label != NULL) {
-            strncpy(Servos[Servos_count].label, label, SERVOS_ID_LENGTH+1);
+            strncpy((char*)Servos[Servos_count].label, label, SERVOS_ID_LENGTH+1);
         } else {
             Servos[Servos_count].label[0] = '\0';
         }
+        pinMode(Servos[Servos_count].pin, OUTPUT);
+        digitalWrite(Servos[Servos_count].pin, LOW);
         Servos_count++;
+
+        // Re-configuring timer, because some pins can cause it to fail
+        servos_configure_timer();
     
         return Servos_count-1;
     } else {
@@ -102,7 +189,7 @@ uint8_t servos_register(uint8_t pin, char* label)
 uint8_t servos_index(char* label)
 {
     for (uint8_t i=0;i<Servos_count;i++) {
-        if (strncmp(Servos[i].label, label, SERVOS_ID_LENGTH) == 0) {
+        if (strncmp((char*)Servos[i].label, label, SERVOS_ID_LENGTH) == 0) {
             return i;
         }
     }
@@ -152,7 +239,7 @@ bool servos_is_enabled(uint8_t index)
 }
 char* servos_get_label(uint8_t index)
 {
-    if (index != -1 && index < Servos_count) return Servos[index].label;
+    if (index != -1 && index < Servos_count) return (char*)Servos[index].label;
     else return NULL;
 }
 float servos_get_command(uint8_t index)
@@ -203,7 +290,6 @@ void servos_set_pos(uint8_t index, uint16_t pos)
     }
     
     Servos[index].pos = pos;
-    pwmWrite(Servos[index].pin, Servos[index].pos);
 }
 
 void servos_command(uint8_t index, float pos)
@@ -245,11 +331,10 @@ void servos_enable(uint8_t index, bool enabled)
         return;
     }
     if (enabled == false && Servos[index].enabled == true) {
-        pinMode(Servos[index].pin, INPUT_FLOATING);
         Servos[index].enabled = false;
+        digitalWrite(Servos[index].pin, LOW);
     } else if (enabled == true && Servos[index].enabled == false) {
         servos_set_pos(index, Servos[index].pos);
-        pinMode(Servos[index].pin, PWM);
         Servos[index].enabled = true;
     }
 }
@@ -281,12 +366,17 @@ void servos_flush()
     Servos_count = 0;
 }
 
+TERMINAL_PARAMETER_INT(prescaler," Prescaler", 0);
+
 void servos_attach_interrupt(voidFuncPtr func)
 {
     HardwareTimer timer(4);
-    timer.setChannelMode(4, TIMER_OUTPUT_COMPARE);
-    timer.setCompare(4, 3*SERVOS_TIMERS_OVERFLOW/10);
-    timer.attachInterrupt(4, func);
+    timer.pause();
+    timer.setPrescaleFactor(SERVOS_TIMERS_PRESCALE*SERVOS_PER_CHANNEL);
+    timer.setOverflow(SERVOS_TIMERS_OVERFLOW);
+    timer.setMode(TIMER_CH4, TIMER_OUTPUT_COMPARE);
+    timer.setCompare(TIMER_CH4, 1);
+    timer.attachInterrupt(TIMER_CH4, func);
     timer.refresh();
     timer.resume();
 }

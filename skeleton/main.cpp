@@ -29,6 +29,4 @@ void tick()
  */
 void loop()
 {
-    // Pour toucher aux moteurs, utilisez plutôt
-    // la fonction tick()
 }

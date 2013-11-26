@@ -9,9 +9,14 @@
 #define SERVOS_ID_LENGTH 10
 
 /**
+ * Number of servos per timer channel
+ */
+#define SERVOS_PER_CHANNEL 6
+
+/**
  * Number of steps required for 1°
  */
-#define DEFAULT_STEPS_PER_DEGREE 30.75
+#define DEFAULT_STEPS_PER_DEGREE (30.75*SERVOS_PER_CHANNEL)
 
 /**
  * Max number of servos
@@ -22,7 +27,8 @@
  * Timers parameters for output
  * PWM generation
  */
-#define SERVOS_TIMERS_PRESCALE 24
+#define SERVOS_TIMER           1
+#define SERVOS_TIMERS_PRESCALE (24/SERVOS_PER_CHANNEL)
 #define SERVOS_TIMERS_OVERFLOW 60000
 
 /**

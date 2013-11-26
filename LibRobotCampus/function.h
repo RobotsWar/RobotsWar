@@ -30,6 +30,8 @@ class Function
          */
         double getMod(double x);
 
+        void clear();
+
     protected:
         /**
          * Function points
