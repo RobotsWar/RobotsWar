@@ -127,7 +127,7 @@ install: $(BUILD_PATH)/$(BOARD).bin
 PREV_BUILD_TYPE = $(shell cat $(BUILD_PATH)/build-type 2>/dev/null)
 build-check:
 ifneq ($(PREV_BUILD_TYPE), $(MEMORY_TARGET))
-	$(shell rm -rf $(BUILD_PATH))
+	$(shell rm -rf $(BUILD_PATH);mkdir $(BUILD_PATH))
 endif
 
 sketch: build-check MSG_INFO $(BUILD_PATH)/$(BOARD).bin
