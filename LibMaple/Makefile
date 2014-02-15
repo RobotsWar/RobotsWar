@@ -99,14 +99,14 @@ include $(SRCROOT)/build-targets.mk
 
 # Target upload commands
 # USB ID for DFU upload -- FIXME: do something smarter with this
-BOARD_USB_VENDOR_ID  := 1EAF
-BOARD_USB_PRODUCT_ID := 0003
+BOARD_USB_VENDOR_ID  := FFF1
+BOARD_USB_PRODUCT_ID := FF48
 UPLOAD_ram   := $(SUPPORT_PATH)/scripts/reset.py && \
                 sleep 1                  && \
-                $(DFU) -a0 -d $(BOARD_USB_VENDOR_ID):$(BOARD_USB_PRODUCT_ID) -D $(BUILD_PATH)/$(BOARD).bin -R
+                echo $(DFU) -a0 -d $(BOARD_USB_VENDOR_ID):$(BOARD_USB_PRODUCT_ID) -D $(BUILD_PATH)/$(BOARD).bin -R
 UPLOAD_flash := $(SUPPORT_PATH)/scripts/reset.py && \
                 sleep 1                  && \
-                $(DFU) -a1 -d $(BOARD_USB_VENDOR_ID):$(BOARD_USB_PRODUCT_ID) -D $(BUILD_PATH)/$(BOARD).bin -R
+                echo $(DFU) -a1 -d $(BOARD_USB_VENDOR_ID):$(BOARD_USB_PRODUCT_ID) -D $(BUILD_PATH)/$(BOARD).bin -R
 
 # Conditionally upload to whatever the last build was
 install: INSTALL_TARGET = $(shell cat $(BUILD_PATH)/build-type 2>/dev/null)

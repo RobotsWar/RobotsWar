@@ -113,6 +113,38 @@ void HardwareSerial::end(void) {
     usart_disable(this->usart_device);
 }
 
+void HardwareSerial::enableTransmitter(bool enable)
+{
+    if (enable) {
+        this->usart_device->regs->CR1 |= USART_CR1_TE;
+    } else {
+        this->usart_device->regs->CR1 &= ~USART_CR1_TE;
+    }
+}
+
+void HardwareSerial::enableReceiver(bool enable)
+{
+    if (enable) {
+        this->usart_device->regs->CR1 |= USART_CR1_RE;
+    } else {
+        this->usart_device->regs->CR1 &= ~USART_CR1_RE;
+    }
+}
+
+void HardwareSerial::waitDataToBeSent()
+{
+    while(!(this->usart_device->regs->SR & USART_SR_TC));
+}
+    
+void HardwareSerial::enableHalfDuplex(bool enable)
+{
+    if (enable) {
+        this->usart_device->regs->CR3 |= USART_CR3_HDSEL;
+    } else {
+        this->usart_device->regs->CR3 &= ~USART_CR3_HDSEL;
+    }
+}
+
 /*
  * I/O
  */

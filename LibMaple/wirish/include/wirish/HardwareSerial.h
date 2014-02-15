@@ -72,6 +72,12 @@ public:
     /* Pin accessors */
     int txPin(void) { return this->tx_pin; }
     int rxPin(void) { return this->rx_pin; }
+    
+    // RobotCampus enhance
+    void enableHalfDuplex(bool enable = true);
+    void enableTransmitter(bool enable = true);
+    void enableReceiver(bool enable = true);
+    void waitDataToBeSent();
 
     /* Escape hatch into libmaple */
     /* FIXME [0.0.13] documentation */

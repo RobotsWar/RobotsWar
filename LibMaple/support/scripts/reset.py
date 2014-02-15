@@ -34,7 +34,7 @@ def linux_tty_is_maple(device):
     try:
         sysfile = open("/sys/class/tty/%s/device/uevent" % device, "r")
         text = "".join(sysfile.readlines())
-        return "PRODUCT=1eaf/4" in text
+        return "PRODUCT=fff1" in text
     except IOError: # no udev info available
         return True
 
@@ -87,7 +87,7 @@ if plat_sys == 'Linux':
     maple_path = linux_get_maple_path()
     # fall back on /dev/maple if that doesn't work
     if maple_path is None:
-        maple_path = '/dev/maple'
+        maple_path = '/dev/ttyACM0'
         print('Could not find Maple serial port; defaulting to /dev/maple.')
 elif plat_sys == 'Darwin':
     maple_path = unix_get_maple_path('tty.usbmodem')
@@ -130,7 +130,7 @@ try:
         time.sleep(0.01)
         ser.setDTR(0)
         time.sleep(0.01)
-        ser.write("1EAF".encode("ascii"))
+        ser.write("fff1".encode("ascii"))
         ser.flush()
 
         # Delay a bit before proceeding
