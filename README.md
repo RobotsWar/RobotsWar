@@ -20,7 +20,8 @@ Directories
 -----------
 
 * `BinutilsArm/`: Contains all tools to compile and play with ARM architecture
-* `LibMaple/`: Contains libmaple source files
+* `LibMaple/`: Contains libmaple source files, this is the
+  [modified fork of RobotCampus](https://github.com/RobotsWar/libmaple)
 * `LibRobotCampus/`: Contains Robot Campus own helpers
 * `skeleton/`: A skeleton boilerplate, just copy and paste it to `src/` or the
   name you want to create a new project (see below).
