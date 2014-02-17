@@ -1,4 +1,3 @@
-
 /******************************************************************************
  * The MIT License
  *
@@ -55,7 +54,6 @@ void boardInit(void) {
 }
 
 extern const stm32_pin_info PIN_MAP[BOARD_NR_GPIO_PINS] = {
-
    /* Top header */
 	{GPIOA,   NULL, ADC1,  4, 0,    4}, /* D0/PA4 */
 	{GPIOA,   NULL, ADC1,  5, 0,    5}, /* D1/PA5  */
@@ -91,28 +89,24 @@ extern const stm32_pin_info PIN_MAP[BOARD_NR_GPIO_PINS] = {
  * Hidden pin map
  * the below pins are used carefully, need to check schematic of OpenCM9.04
  * */
-	{GPIOA,   NULL, NULL, 13, 0, ADCx}, /* D29/PA13 JTAG SWDIO*/
-	{GPIOA,   NULL, NULL, 14, 0, ADCx}, /* D30/PA14 JTAG SWDCLK*/
-	{GPIOB,   NULL, NULL,  5, 0, ADCx}, /* D26/PB5 DXL DIR*/
-	{GPIOB, TIMER4, NULL,  6, 1, ADCx}, /* D27/PB6 DXL TXD*/
-	{GPIOB, TIMER4, NULL,  7, 2, ADCx} /* D28/PB7 DXL RXD -> dont work as output and input*/
+	{GPIOA,   NULL, NULL, 13, 0, ADCx}, /* D26/PA13 JTAG SWDIO*/
+	{GPIOA,   NULL, NULL, 14, 0, ADCx}, /* D27/PA14 JTAG SWDCLK*/
+	{GPIOB,   NULL, NULL,  5, 0, ADCx}, /* D28/PB5 DXL DIR*/
+	{GPIOB, TIMER4, NULL,  6, 1, ADCx}, /* D29/PB6 DXL TXD*/
+	{GPIOB, TIMER4, NULL,  7, 2, ADCx} /* D30/PB7 DXL RXD -> dont work as output and input*/
 
 };
-/**
- * [ROBOTIS][CHANGE] 2013-04-22
- * Don't need to use the below variables, I think it is not versatile variable.
- * */
-/*extern const uint8 boardPWMPins[] __FLASH__ = {
-    0, 1, 2, 3, 5, 6, 7, 8, 9, 11, 12, 14, 24, 27, 28
+
+extern const uint8 boardPWMPins[] __FLASH__ = {
+    2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 27, 28
 };
 
 extern const uint8 boardADCPins[] __FLASH__ = {
-    0, 1, 2, 3, 10, 11, 12, 15, 16, 17, 18, 19, 20, 27, 28
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9
 };
 
 extern const uint8 boardUsedPins[] __FLASH__ = {
-    BOARD_LED_PIN, BOARD_BUTTON_PIN, BOARD_JTMS_SWDIO_PIN,
-    BOARD_JTCK_SWCLK_PIN, BOARD_JTDI_PIN, BOARD_JTDO_PIN, BOARD_NJTRST_PIN
-};*/
+    BOARD_LED_PIN, BOARD_BUTTON_PIN
+};
 
 

@@ -1,9 +1,9 @@
 /**
- * RobotCampus 2013
- * @author Leph
- *
- * Adding base classe for Harware and USB Serial
- */
+ * * RobotCampus 2013
+ * * @author Leph
+ * *
+ * * Adding base classe for Harware and USB Serial
+ * */
 
 #ifndef _WIRISH_SERIAL_H_
 #define _WIRISH_SERIAL_H_

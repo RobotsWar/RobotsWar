@@ -78,35 +78,30 @@
  * intended for general use. */
 #define BOARD_NR_GPIO_PINS      32//44
 
-/**
- * [ROBOTIS][CHANGE] 2013-04-22
- * Don't need to use the below variables, I think it is not versatile variable.
- * */
-
 /* Number of pins capable of PWM output */
-//#define BOARD_NR_PWM_PINS       12//15
+#define BOARD_NR_PWM_PINS       15
 
 /* Number of pins capable of ADC conversion */
-//#define BOARD_NR_ADC_PINS       10//15
+#define BOARD_NR_ADC_PINS       10
 
 /* Number of pins already connected to external hardware.  For Maple,
  * these are just BOARD_LED_PIN and BOARD_BUTTON_PIN. */
-//#define BOARD_NR_USED_PINS       3 //7
+#define BOARD_NR_USED_PINS       1
 
 /* Debug port pins */
-/*
-#define BOARD_JTMS_SWDIO_PIN    11//39
-#define BOARD_JTCK_SWCLK_PIN    12//40
-#define BOARD_JTDI_PIN          13//41
-#define BOARD_JTDO_PIN          17//42
-#define BOARD_NJTRST_PIN        18//43
-*/
+#define BOARD_JTMS_SWDIO_PIN    11
+#define BOARD_JTCK_SWCLK_PIN    12
+#define BOARD_JTDI_PIN          13
+#define BOARD_JTDO_PIN          17
+#define BOARD_NJTRST_PIN        18
 
 #define BOARD_USB_DISC_DEV      GPIOC
 #define BOARD_USB_DISC_BIT      13
 
 void boardInit(void);
 
-
+#define BOARD_DYNAMIXEL_DIR     19
+#define BOARD_DYNAMIXEL_TX      20
+#define BOARD_DYNAMIXEL_RX      21
 
 #endif /* CM_900_H_ */

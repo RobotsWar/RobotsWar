@@ -32,9 +32,9 @@
 #define _WIRISH_USB_SERIAL_H_
 
 #include <wirish/Print.h>
+#include <wirish/boards.h>
 #include <wirish/Read.h>
 #include <wirish/Serial.h>
-#include <wirish/boards.h>
 
 /**
  * @brief Virtual serial terminal.

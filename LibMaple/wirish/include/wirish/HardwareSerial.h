@@ -36,9 +36,9 @@
 #include <libmaple/libmaple_types.h>
 
 #include <wirish/Print.h>
+#include <wirish/boards.h>
 #include <wirish/Read.h>
 #include <wirish/Serial.h>
-#include <wirish/boards.h>
 
 /*
  * IMPORTANT:
@@ -52,7 +52,7 @@
 
 struct usart_dev;
 
-class HardwareSerial : public Serial  {
+class HardwareSerial : public Serial {
 public:
     HardwareSerial(struct usart_dev *usart_device,
                    uint8 tx_pin,
@@ -72,12 +72,6 @@ public:
     /* Pin accessors */
     int txPin(void) { return this->tx_pin; }
     int rxPin(void) { return this->rx_pin; }
-    
-    // RobotCampus enhance
-    void enableHalfDuplex(bool enable = true);
-    void enableTransmitter(bool enable = true);
-    void enableReceiver(bool enable = true);
-    void waitDataToBeSent();
 
     /* Escape hatch into libmaple */
     /* FIXME [0.0.13] documentation */

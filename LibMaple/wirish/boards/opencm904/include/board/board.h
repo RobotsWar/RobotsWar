@@ -51,7 +51,17 @@
 
 /* Total number of GPIO pins that are broken out to headers and
  * intended for general use. */
-#define BOARD_NR_GPIO_PINS      31//26//44
+#define BOARD_NR_GPIO_PINS      31
+
+/* Number of pins capable of PWM output */
+#define BOARD_NR_PWM_PINS       15
+
+/* Number of pins capable of ADC conversion */
+#define BOARD_NR_ADC_PINS       10
+
+/* Number of pins already connected to external hardware.  For Maple,
+ * these are just BOARD_LED_PIN and BOARD_BUTTON_PIN. */
+#define BOARD_NR_USED_PINS       2
 
 /* Number of USARTs/UARTs whose pins are broken out to headers */
 //#define BOARD_NR_USARTS         3
@@ -82,5 +92,14 @@
 
 void boardInit(void);
 
+#define BOARD_DYNAMIXEL_DIR     28
+#define BOARD_DYNAMIXEL_TX      29
+#define BOARD_DYNAMIXEL_RX      30
+
+#define BOARD_JTMS_SWDIO_PIN      26
+#define BOARD_JTCK_SWCLK_PIN      27
+#define BOARD_JTDI_PIN            15
+#define BOARD_JTDO_PIN            16
+#define BOARD_NJTRST_PIN          17
 
 #endif /* CM904_H_ */

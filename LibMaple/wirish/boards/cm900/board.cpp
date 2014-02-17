@@ -5,9 +5,6 @@
  *      Author: in2storm
  */
 
-
-
-
 /******************************************************************************
  * The MIT License
  *
@@ -80,10 +77,10 @@ extern const stm32_pin_info PIN_MAP[BOARD_NR_GPIO_PINS] = {
 	{GPIOB,   NULL, NULL,  2, 0, ADCx}, /* D16/PB2 (LED)*/
 	{GPIOB,   NULL, NULL,  3, 0, ADCx}, /* D17/PB3  */
 	{GPIOB,   NULL, NULL,  4, 0, ADCx}, /* D18/PB4  */
-	{GPIOB,   NULL, NULL,  5, 0, ADCx}, /* D19/PB5 */
+	{GPIOB,   NULL, NULL,  5, 0, ADCx}, /* D19/PB5 DIR_485 */
 
-	{GPIOB, TIMER4, NULL,  6, 1, ADCx}, /* D20/PB6 */
-	{GPIOB, TIMER4, NULL,  7, 2, ADCx}, /* D21/PB7 */
+	{GPIOB, TIMER4, NULL,  6, 1, ADCx}, /* D20/PB6 DXL_TX (Writing to dynamixel bus) */
+	{GPIOB, TIMER4, NULL,  7, 2, ADCx}, /* D21/PB7 DXL_RX (Receiving from dynamixel bus) */
 	{GPIOB, TIMER4, NULL,  8, 3, ADCx}, /* D22/PB8 */
 	{GPIOB, TIMER4, NULL,  9, 4, ADCx}, /* D23/PB9 */
 	{GPIOB,   NULL, NULL, 10, 0, ADCx}, /* D24/PB10 */
@@ -106,19 +103,15 @@ extern const stm32_pin_info PIN_MAP[BOARD_NR_GPIO_PINS] = {
     //{GPIOB,   NULL, NULL,  3, 0, ADCx}, /* D17/PB3  */
     //{GPIOB,   NULL, NULL,  4, 0, ADCx}, /* D18/PB4  */
 };
-/**
- * [ROBOTIS][CHANGE] 2013-04-22
- * Don't need to use the below variables, I think it is not versatile variable.
- * */
-/*extern const uint8 boardPWMPins[] __FLASH__ = {
-    0, 1, 2, 3, 5, 6, 7, 8, 9, 11, 12, 14, 24, 27, 28
+
+extern const uint8 boardPWMPins[] __FLASH__ = {
+    0, 1, 2, 3, 6, 7, 8, 9, 10, 14, 15, 20, 21, 22, 23
 };
 
 extern const uint8 boardADCPins[] __FLASH__ = {
-    0, 1, 2, 3, 10, 11, 12, 15, 16, 17, 18, 19, 20, 27, 28
+    0, 1, 2, 3, 4, 5, 6, 7, 14, 15
 };
 
 extern const uint8 boardUsedPins[] __FLASH__ = {
-    BOARD_LED_PIN, BOARD_BUTTON_PIN, BOARD_JTMS_SWDIO_PIN,
-    BOARD_JTCK_SWCLK_PIN, BOARD_JTDI_PIN, BOARD_JTDO_PIN, BOARD_NJTRST_PIN
-};*/
+    BOARD_LED_PIN
+};

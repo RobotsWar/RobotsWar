@@ -1,9 +1,9 @@
 /**
- * RobotCampus 2013
- * @author Leph
- *
- * Adding Read interface to Harware and USB Serial
- */
+* RobotCampus 2013
+* @author Leph
+*
+* Adding Read interface to Harware and USB Serial
+*/
 
 #ifndef _WIRISH_READ_H_
 #define _WIRISH_READ_H_
@@ -17,4 +17,3 @@ class Read {
 };
 
 #endif
-
