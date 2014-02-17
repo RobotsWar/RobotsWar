@@ -108,7 +108,7 @@ include build-targets.mk
 
 # Target upload commands
 # USB ID for DFU upload -- FIXME: do something smarter with this
-BOARD_USB_VENDOR_ID  := 1EAF
+BOARD_USB_VENDOR_ID  := 1eaf
 BOARD_USB_PRODUCT_ID := 0003
 UPLOAD_ram   := $(SUPPORT_PATH)/scripts/reset.py && \
                 sleep 1                  && \
