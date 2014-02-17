@@ -22,15 +22,15 @@ Directories
 * `BinutilsArm/`: Contains all tools to compile and play with ARM architecture
 * `LibMaple/`: Contains libmaple source files
 * `LibRobotCampus/`: Contains Robot Campus own helpers
-* `src/`: Your sources will go here
-
+* `skeleton/`: A skeleton boilerplate, just copy and paste it to `src/` or the
+  name you want to create a new project (see below).
 
 Compilation
 -----------
 
 - Copy `skeleton/` to `src/`, for instance
 - Write your code in `src/`
-- Update the first line of src/build-targets.mk 
+- Update the first line of `build-targets.mk` if you want to add some files
 - In `src/`, run `make` to compile
 - In `src/`, run `make install` to flash your board
 
