@@ -250,3 +250,80 @@ void dxl_write_word(ui8 id, ui8 addr, int value)
     buffer[1] = (value>>8)&0xff;
     dxl_write(id, addr, (char*)buffer, sizeof(buffer));
 }
+
+void dxl_set_position(ui8 id, float position)
+{
+    dxl_write_word(id, DXL_GOAL_POSITION, dxl_position_to_value(id, position));
+}
+
+void dxl_disable(ui8 id)
+{   
+    dxl_write_word(id, DXL_GOAL_TORQUE, 0);
+}
+
+void dxl_enable(ui8 id)
+{   
+    char buffer[4];
+
+    buffer[0] = 0xff;
+    buffer[1] = 0x03;
+    buffer[2] = 0xff;
+    buffer[3] = 0x03;
+
+    dxl_write(id, DXL_GOAL_SPEED, buffer, sizeof(buffer));
+}
+
+int dxl_position_to_value(ui8 id, float position)
+{
+    return ((position/300.0)*1024)+512;
+}
+
+float dxl_value_to_position(ui8 id, int value)
+{
+    return ((value-512)/1024.0)*300.0;
+}
+
+float dxl_get_position(ui8 id, bool *success)
+{
+    int value = dxl_read_word(id, DXL_POSITION, success);
+    return dxl_value_to_position(id, value);
+}
+
+bool dxl_read(ui8 id, ui8 addr, char *output, int size)
+{
+    struct dxl_packet request;
+    request.id = id;
+    request.instruction = DXL_CMD_READ;
+    request.parameter_nb = 2;
+    request.parameters[0] = addr;
+    request.parameters[1] = size;
+
+    struct dxl_packet *reply = dxl_send_reply(&request);
+
+    if (reply != NULL) {
+        for (int i=0; i<reply->parameter_nb; i++) {
+            output[i] = reply->parameters[i];
+        }
+    }
+
+    return (reply != NULL);
+}
+
+ui8 dxl_read_byte(ui8 id, ui8 addr, bool *success)
+{
+    bool dummy;
+    ui8 value;
+    success = (success != NULL) ? success : &dummy;
+    *success = dxl_read(id, addr, (char*)&value, 1);
+    return value;
+}
+
+int dxl_read_word(ui8 id, ui8 addr, bool *success)
+{
+    bool dummy;
+    ui8 buffer[2];
+    success = (success != NULL) ? success : &dummy;
+    *success = dxl_read(id, addr, (char*)buffer, sizeof(buffer));
+
+    return (buffer[0])|(buffer[1]<<8);
+}

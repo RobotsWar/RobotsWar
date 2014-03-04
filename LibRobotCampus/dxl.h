@@ -30,6 +30,7 @@
 
 // Instructions
 #define DXL_CMD_PING    0x01
+#define DXL_CMD_READ    0x02
 #define DXL_CMD_WRITE   0x03
 
 typedef unsigned char ui8;
@@ -83,5 +84,20 @@ bool dxl_ping(ui8 id);
 void dxl_write(ui8 id, ui8 addr, char *data, int size);
 void dxl_write_byte(ui8 id, ui8 addr, ui8 value);
 void dxl_write_word(ui8 id, ui8 addr, int value);
+
+// Reading
+bool dxl_read(ui8 id, ui8 addr, char *output, int size);
+ui8 dxl_read_byte(ui8 id, ui8 addr, bool *success = NULL);
+int dxl_read_word(ui8 id, ui8 addr, bool *success = NULL);
+
+// Position
+float dxl_get_position(ui8 id, bool *success = NULL);
+void dxl_set_position(ui8 id, float position);
+int dxl_position_to_value(ui8 id, float position);
+float dxl_value_to_position(ui8 id, int value);
+
+// Torque
+void dxl_disable(ui8 id);
+void dxl_enable(ui8 id);
 
 #endif // DXL_H

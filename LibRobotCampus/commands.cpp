@@ -74,12 +74,20 @@ TERMINAL_COMMAND(calibrate_ui,
 TERMINAL_COMMAND(start, "Enable all the servos")
 {
     servos_enable_all();
+#if defined(DXL_AVAILABLE)
+    dxl_write_byte(DXL_BROADCAST, DXL_LED, 1);
+#endif
     terminal_io()->println("OK");
 }
 
 TERMINAL_COMMAND(stop, "Disable all servos")
 {
     servos_disable_all();
+#if defined(DXL_AVAILABLE)
+    dxl_write_word(DXL_BROADCAST, DXL_GOAL_TORQUE, 0);
+    delay(1);
+    dxl_write_byte(DXL_BROADCAST, DXL_LED, 0);
+#endif
     terminal_io()->println("OK");
 }
 
@@ -405,99 +413,5 @@ TERMINAL_COMMAND(forward,
 }
 
 #if defined(DXL_AVAILABLE)
-TERMINAL_COMMAND(dxl_scan,
-        "Scans for dynamixel servos")
-{
-    int maxId = 240;
-    if (argc) {
-        maxId = atoi(argv[0]);
-    }
-
-    // Turning all the LEDs off
-    dxl_write_byte(DXL_BROADCAST, DXL_LED, 0);
-
-    terminal_io()->print("Scanning for servos up to ");
-    terminal_io()->println(maxId);
-
-    for (int id=1; id<=maxId; id++) {
-        if (dxl_ping(id)) {
-            terminal_io()->print(id);
-            terminal_io()->println(" is present.");
-            dxl_write_byte(id, DXL_LED, 1);
-        }
-    }
-}
-
-TERMINAL_COMMAND(dxl_release,
-        "Releases all the dynamixel servos")
-{
-    terminal_io()->println("Releasing torque of all servos.");
-    dxl_write_word(DXL_BROADCAST, DXL_GOAL_TORQUE, 0);
-}
-
-TERMINAL_COMMAND(dxl_id,
-        "Identify a servo")
-{
-    if (argc == 1) {
-        int id = atoi(argv[0]);
-        int on = 1;
-        while (!terminal_io()->io->available()) {
-            dxl_write_byte(id, DXL_LED, on);
-            delay(500);
-            on = !on;
-        }
-        dxl_write_byte(id, DXL_LED, 1);
-    } else {
-        terminal_io()->println("Usage: dxl_id <id>");
-    }
-}
-
-TERMINAL_COMMAND(dxl_init,
-        "Initializes the dynamixel system")
-{
-    int baudrate = 1000000;
-    if (argc) {
-        baudrate = atoi(argv[0]);
-    }
-
-    terminal_io()->print("Starting dynamixel bus forwarding at ");
-    terminal_io()->print(baudrate);
-    terminal_io()->println(" bauds.");
-    dxl_init(baudrate);
-}
-
-TERMINAL_COMMAND(dxl_ping,
-        "Pings a dynamixel servo")
-{
-    if (argc == 1) {
-        int id = atoi(argv[0]);
-        terminal_io()->print("Pinging ");
-        terminal_io()->println(id);
-
-        if (dxl_ping(id)) {
-            terminal_io()->println("Got a response.");
-        } else {
-            terminal_io()->println("No response.");
-        }
-    } else {
-        terminal_io()->println("Usage: ping <id>");
-    }
-}
-
-TERMINAL_COMMAND(dxl_forward,
-        "Dynamixel forward mode")
-{
-    int baudrate = 1000000;
-    if (argc) {
-        baudrate = atoi(argv[0]);
-    }
-    terminal_io()->print("Starting dynamixel bus forwarding at ");
-    terminal_io()->print(baudrate);
-    terminal_io()->println(" bauds.");
-
-    dxl_init(baudrate);
-    while (true) {
-        dxl_forward();
-    }
-}
+#include "dxl_commands.cpp"
 #endif
