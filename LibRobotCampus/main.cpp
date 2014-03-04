@@ -3,6 +3,7 @@
 #include <servos.h>
 #include <terminal.h>
 #include <main.h>
+#include <dxl.h>
 
 // WiFly is routed on Serial3
 #define WiFly Serial3

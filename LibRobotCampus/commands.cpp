@@ -2,6 +2,7 @@
 #include <string.h>
 #include "terminal.h"
 #include "servos.h"
+#include "dxl.h"
 
 TERMINAL_COMMAND(command_ui, 
     "Set position of a servo with UI. Usage: command_ui [label]")
@@ -402,3 +403,22 @@ TERMINAL_COMMAND(forward,
         }
     }
 }
+
+#if defined(DXL_AVAILABLE)
+TERMINAL_COMMAND(dxlforward,
+        "Dynamixel forward mode")
+{
+    int baudrate = 1000000;
+    if (argc) {
+        baudrate = atoi(argv[0]);
+    }
+    terminal_io()->print("Starting dynamixel bus forwarding at ");
+    terminal_io()->print(baudrate);
+    terminal_io()->println("bauds.");
+
+    dxl_init(baudrate);
+    while (true) {
+        dxl_forward();
+    }
+}
+#endif

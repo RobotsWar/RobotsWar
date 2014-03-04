@@ -101,3 +101,71 @@ pc_ended:
 pc_error:
     packet->dxl_state = 0;
 }
+
+void dxl_init(int baudrate)
+{
+#if defined(BOARD_opencm904)
+    afio_remap(AFIO_REMAP_USART1);
+//    pinMode(DXL_DIRECTION, OUTPUT);
+//    digitalWrite(DXL_DIRECTION, LOW); // RX
+//    digitalWrite(DXL_DIRECTION, HIGH); // RX
+
+    // Initializing pins
+    gpio_set_mode(GPIOB, 6, GPIO_AF_OUTPUT_PP);
+    gpio_set_mode(GPIOB, 7, GPIO_INPUT_FLOATING);
+
+    // Direction pins
+    pinMode(DXL_DIRECTION, OUTPUT);
+    digitalWrite(DXL_DIRECTION, LOW);
+
+    DXL_DEVICE.begin(baudrate);
+#endif
+}
+
+void dxl_send(volatile struct dxl_packet *packet)
+{
+    ui8 buffer[DXL_BUFFER_SIZE];
+    int n = dxl_write_packet(packet, buffer);
+
+    digitalWrite(DXL_DIRECTION, HIGH); // TX
+    asm("nop");
+    DXL_DEVICE.write(buffer, n);
+    DXL_DEVICE.waitDataToBeSent();
+    asm("nop");
+    digitalWrite(DXL_DIRECTION, LOW); // RX
+}
+
+volatile struct dxl_packet in_packet;
+
+void dxl_tick()
+{
+    while (DXL_DEVICE.available()) {
+        dxl_packet_push_byte(&in_packet, DXL_DEVICE.read());
+    }
+}
+
+void dxl_forward()
+{
+    while (true) {
+        volatile struct dxl_packet current_packet;
+
+        // Receiving packets
+        dxl_tick();
+        if (in_packet.process) {
+            in_packet.process = false;
+            ui8 buffer[DXL_BUFFER_SIZE];
+            int n = dxl_write_packet(&in_packet, buffer);
+            SerialUSB.write(buffer, n);
+        }
+
+        // Sending packets
+        while (SerialUSB.available()) {
+            dxl_packet_push_byte(&current_packet, SerialUSB.read());
+
+            if (current_packet.process) {
+                current_packet.process = false;
+                dxl_send(&current_packet);
+            }
+        }
+    }
+}
