@@ -405,7 +405,58 @@ TERMINAL_COMMAND(forward,
 }
 
 #if defined(DXL_AVAILABLE)
-TERMINAL_COMMAND(dxlforward,
+TERMINAL_COMMAND(dxl_scan,
+        "Scans for dynamixel servos")
+{
+    int maxId = 240;
+    if (argc) {
+        maxId = atoi(argv[0]);
+    }
+
+    terminal_io()->print("Scanning for servos up to ");
+    terminal_io()->println(maxId);
+
+    for (int id=1; id<=maxId; id++) {
+        if (dxl_ping(id)) {
+            terminal_io()->print(id);
+            terminal_io()->println(" is present.");
+        }
+    }
+}
+
+TERMINAL_COMMAND(dxl_init,
+        "Initializes the dynamixel system")
+{
+    int baudrate = 1000000;
+    if (argc) {
+        baudrate = atoi(argv[0]);
+    }
+
+    terminal_io()->print("Starting dynamixel bus forwarding at ");
+    terminal_io()->print(baudrate);
+    terminal_io()->println(" bauds.");
+    dxl_init(baudrate);
+}
+
+TERMINAL_COMMAND(dxl_ping,
+        "Pings a dynamixel servo")
+{
+    if (argc == 1) {
+        int id = atoi(argv[0]);
+        terminal_io()->print("Pinging ");
+        terminal_io()->println(id);
+
+        if (dxl_ping(id)) {
+            terminal_io()->println("Got a response.");
+        } else {
+            terminal_io()->println("No response.");
+        }
+    } else {
+        terminal_io()->println("Usage: ping <id>");
+    }
+}
+
+TERMINAL_COMMAND(dxl_forward,
         "Dynamixel forward mode")
 {
     int baudrate = 1000000;
@@ -414,7 +465,7 @@ TERMINAL_COMMAND(dxlforward,
     }
     terminal_io()->print("Starting dynamixel bus forwarding at ");
     terminal_io()->print(baudrate);
-    terminal_io()->println("bauds.");
+    terminal_io()->println(" bauds.");
 
     dxl_init(baudrate);
     while (true) {

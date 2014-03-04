@@ -19,6 +19,9 @@
 #define DXL_AVAILABLE
 #endif
 
+// Instructions
+#define DXL_CMD_PING    0x01
+
 typedef unsigned char ui8;
 
 /**
@@ -36,15 +39,34 @@ struct dxl_packet {
     ui8 dxl_state;
 };
 
-void dxl_packet_init(volatile struct dxl_packet *packet);
-void dxl_packet_push_byte(volatile struct dxl_packet *packet, ui8 b);
-int dxl_write_packet(volatile struct dxl_packet *packet, ui8 *buffer);
-void dxl_copy_packet(volatile struct dxl_packet *from, volatile struct dxl_packet *to);
-ui8 dxl_compute_checksum(volatile struct dxl_packet *packet);
+void dxl_packet_init(struct dxl_packet *packet);
+void dxl_packet_push_byte(struct dxl_packet *packet, ui8 b);
+int dxl_write_packet(struct dxl_packet *packet, ui8 *buffer);
+void dxl_copy_packet(struct dxl_packet *from, struct dxl_packet *to);
+ui8 dxl_compute_checksum(struct dxl_packet *packet);
 
-void dxl_send(volatile struct dxl_packet *packet);
+// Send a packet on the dynamixel bus
+void dxl_send(struct dxl_packet *packet);
 
+// Initialize dynamixel system (if available)
 void dxl_init(int baudrate);
+
+// Run the dynamixel forward
 void dxl_forward();
+
+// Incoming packet
+extern struct dxl_packet incoming_packet;
+
+// Get the reply of last packet sent
+struct dxl_packet *dxl_get_reply();
+
+// Tick (read data from the bus)
+void dxl_tick();
+
+// Sends a packet and wait for the reply
+struct dxl_packet *dxl_send_reply(struct dxl_packet *packet);
+
+// Pings a servo with the given ID
+bool dxl_ping(ui8 id);
 
 #endif // DXL_H
