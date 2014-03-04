@@ -8,11 +8,23 @@
 volatile static bool initialized = false;
 volatile static unsigned int dxl_timeout;
 struct dxl_packet incoming_packet;
+struct dxl_config dxl_configs[DXL_MAX_ID];
 
 void dxl_packet_init(struct dxl_packet *packet)
 {
     packet->dxl_state = 0;
     packet->process = false;
+}
+
+__attribute__((constructor))
+void dxl_init_configs()
+{
+    for (int id=0; id<DXL_MAX_ID; id++) {
+        dxl_configs[id].configured = 0;
+        dxl_configs[id].zero = 0.0;
+        dxl_configs[id].min = -150;
+        dxl_configs[id].max = 150;
+    }
 }
 
 /**

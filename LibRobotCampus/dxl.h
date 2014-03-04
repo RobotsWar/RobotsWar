@@ -33,6 +33,9 @@
 #define DXL_CMD_READ    0x02
 #define DXL_CMD_WRITE   0x03
 
+// Dynamixel max id
+#define DXL_MAX_ID 20
+
 typedef unsigned char ui8;
 
 /**
@@ -49,6 +52,15 @@ struct dxl_packet {
     bool process;
     ui8 dxl_state;
 };
+
+struct dxl_config {
+    bool configured;
+    float zero;
+    float min;
+    float max;
+};
+
+extern struct dxl_config dxl_configs[DXL_MAX_ID];
 
 void dxl_packet_init(struct dxl_packet *packet);
 void dxl_packet_push_byte(struct dxl_packet *packet, ui8 b);

@@ -1,7 +1,7 @@
 TERMINAL_COMMAND(dxl_scan,
         "Scans for dynamixel servos")
 {
-    int maxId = 240;
+    int maxId = DXL_MAX_ID;
     if (argc) {
         maxId = atoi(argv[0]);
     }
@@ -25,7 +25,7 @@ TERMINAL_COMMAND(dxl_monitor,
         "Monitors servos")
 {
     int maxId = 0;
-    for (int id=200; id>0; id--) {
+    for (int id=DXL_MAX_ID; id>0; id--) {
         if (dxl_ping(id)) {
             maxId = id;
             break;
@@ -160,5 +160,61 @@ TERMINAL_COMMAND(dxl_forward,
     dxl_init(baudrate);
     while (true) {
         dxl_forward();
+    }
+}
+
+TERMINAL_COMMAND(dxl_zero,
+        "Sets the current position as zero")
+{
+    if (argc == 1) {
+        int id = atoi(argv[0]);
+        bool success;
+        float zero = dxl_get_position(id, &success);
+
+        if (success) {
+            terminal_io()->print("Zero set to ");
+            terminal_io()->println(zero);
+        } else {
+            terminal_io()->println("Unable to get servo position");
+        }
+    } else {
+        terminal_io()->println("Usage: dxl_zero <id>");
+    }
+}
+
+TERMINAL_COMMAND(dxl_calibrate,
+        "Calibrates a dynamixel servo")
+{
+    if (argc == 1) {
+        int id = atoi(argv[0]);
+
+        if (dxl_ping(id)) {
+            float min = 180;
+            float max = -180;
+            dxl_disable(id);
+            terminal_io()->println("First, let's get some min and maxes, move the servo");
+            while (!terminal_io()->io->available()) {
+                bool success;
+                float position = dxl_get_position(id, &success);
+                if (position < min) min = position;
+                if (position > max) max = position;
+                terminal_io()->print((char)(0xd));
+                terminal_io()->print("Min: ");
+                terminal_io()->print(min);
+                terminal_io()->print("\tMax: ");
+                terminal_io()->print(max);
+                terminal_io()->print("                             ");
+                delay(100);
+            }
+            while (terminal_io()->io->available()) {
+                terminal_io()->io->read();
+            }
+            terminal_io()->println();
+            terminal_io()->println("Alright!");
+        } else {
+            terminal_io()->println("Servo did not respond to ping");
+        }
+    } else {
+        terminal_io()->println("Usage: dxl_calibrate <id>");
     }
 }
