@@ -413,6 +413,9 @@ TERMINAL_COMMAND(dxl_scan,
         maxId = atoi(argv[0]);
     }
 
+    // Turning all the LEDs off
+    dxl_write_byte(DXL_BROADCAST, DXL_LED, 0);
+
     terminal_io()->print("Scanning for servos up to ");
     terminal_io()->println(maxId);
 
@@ -420,7 +423,32 @@ TERMINAL_COMMAND(dxl_scan,
         if (dxl_ping(id)) {
             terminal_io()->print(id);
             terminal_io()->println(" is present.");
+            dxl_write_byte(id, DXL_LED, 1);
         }
+    }
+}
+
+TERMINAL_COMMAND(dxl_release,
+        "Releases all the dynamixel servos")
+{
+    terminal_io()->println("Releasing torque of all servos.");
+    dxl_write_word(DXL_BROADCAST, DXL_GOAL_TORQUE, 0);
+}
+
+TERMINAL_COMMAND(dxl_id,
+        "Identify a servo")
+{
+    if (argc == 1) {
+        int id = atoi(argv[0]);
+        int on = 1;
+        while (!terminal_io()->io->available()) {
+            dxl_write_byte(id, DXL_LED, on);
+            delay(500);
+            on = !on;
+        }
+        dxl_write_byte(id, DXL_LED, 1);
+    } else {
+        terminal_io()->println("Usage: dxl_id <id>");
     }
 }
 

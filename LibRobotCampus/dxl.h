@@ -19,8 +19,18 @@
 #define DXL_AVAILABLE
 #endif
 
+// Registers
+#define DXL_LED             0x19
+#define DXL_GOAL_POSITION   0x1E
+#define DXL_GOAL_SPEED      0x20
+#define DXL_GOAL_TORQUE     0x22
+#define DXL_POSITION        0x24
+#define DXL_SPEED           0x26
+#define DXL_TORQUE          0x28
+
 // Instructions
 #define DXL_CMD_PING    0x01
+#define DXL_CMD_WRITE   0x03
 
 typedef unsigned char ui8;
 
@@ -68,5 +78,10 @@ struct dxl_packet *dxl_send_reply(struct dxl_packet *packet);
 
 // Pings a servo with the given ID
 bool dxl_ping(ui8 id);
+
+// Write some data to a dynamixel servo
+void dxl_write(ui8 id, ui8 addr, char *data, int size);
+void dxl_write_byte(ui8 id, ui8 addr, ui8 value);
+void dxl_write_word(ui8 id, ui8 addr, int value);
 
 #endif // DXL_H

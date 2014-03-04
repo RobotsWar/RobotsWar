@@ -221,3 +221,32 @@ bool dxl_ping(ui8 id)
     return (dxl_send_reply(&request)!=NULL);
 }
 
+// Write some data to a dynamixel servo
+void dxl_write(ui8 id, ui8 addr, char *data, int size)
+{
+    struct dxl_packet request;
+    request.id = id;
+    request.instruction = DXL_CMD_WRITE;
+    request.parameter_nb = size+1;
+    request.parameters[0] = addr;
+
+    for (int i=0; i<size; i++) {
+        request.parameters[1+i] = data[i];
+    }
+
+    dxl_send(&request);
+}
+
+// Write a single byte to a dynamixel servo
+void dxl_write_byte(ui8 id, ui8 addr, ui8 value)
+{
+    dxl_write(id, addr, (char*)&value, 1);
+}
+
+void dxl_write_word(ui8 id, ui8 addr, int value)
+{
+    ui8 buffer[2];
+    buffer[0] = (value)&0xff;
+    buffer[1] = (value>>8)&0xff;
+    dxl_write(id, addr, (char*)buffer, sizeof(buffer));
+}
