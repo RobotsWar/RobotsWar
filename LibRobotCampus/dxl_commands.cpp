@@ -4,7 +4,7 @@
 #include "servos.h"
 #include "dxl.h"
 
-#if defined(DXL_AVAILABLE)
+#if defined(DXL_AVAILABLE) and !defined(DISABLE_ROBOTCAMPUS_COMMANDS)
 
 TERMINAL_COMMAND(dxl_scan,
         "Scans for dynamixel servos")

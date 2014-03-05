@@ -4,6 +4,8 @@
 #include "servos.h"
 #include "dxl.h"
 
+#if !defined(DISABLE_ROBOTCAMPUS_COMMANDS)
+
 TERMINAL_COMMAND(command_ui, 
     "Set position of a servo with UI. Usage: command_ui [label]")
 {
@@ -416,3 +418,5 @@ TERMINAL_COMMAND(forward,
         }
     }
 }
+
+#endif
