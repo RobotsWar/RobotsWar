@@ -119,7 +119,7 @@ pc_error:
 
 void dxl_init(int baudrate)
 {
-#if defined(BOARD_opencm904)
+#if defined(DXL_AVAILABLE)
     dxl_timeout = 3000000/baudrate;
     initialized = true;
     afio_remap(AFIO_REMAP_USART1);
