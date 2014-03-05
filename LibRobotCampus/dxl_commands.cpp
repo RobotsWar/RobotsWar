@@ -4,6 +4,8 @@
 #include "servos.h"
 #include "dxl.h"
 
+// Dynamixel specific commands
+
 #if defined(DXL_AVAILABLE) and !defined(DISABLE_ROBOTCAMPUS_COMMANDS)
 
 TERMINAL_COMMAND(dxl_scan,
@@ -164,23 +166,6 @@ TERMINAL_COMMAND(dxl_ping,
     }
 }
 
-TERMINAL_COMMAND(dxl_forward,
-        "Dynamixel forward mode")
-{
-    int baudrate = 1000000;
-    if (argc) {
-        baudrate = atoi(argv[0]);
-    }
-    terminal_io()->print("Starting dynamixel bus forwarding at ");
-    terminal_io()->print(baudrate);
-    terminal_io()->println(" bauds.");
-
-    dxl_init(baudrate);
-    while (true) {
-        dxl_forward();
-    }
-}
-
 static void save_zero(ui8 id)
 {
     bool success;
@@ -298,3 +283,21 @@ TERMINAL_COMMAND(dxl_voltage,
 }
 
 #endif
+
+TERMINAL_COMMAND(dxl_forward,
+        "Dynamixel forward mode")
+{
+    int baudrate = 1000000;
+    if (argc) {
+        baudrate = atoi(argv[0]);
+    }
+    terminal_io()->print("Starting dynamixel bus forwarding at ");
+    terminal_io()->print(baudrate);
+    terminal_io()->println(" bauds.");
+
+    dxl_init(baudrate);
+    while (true) {
+        dxl_forward();
+    }
+}
+
