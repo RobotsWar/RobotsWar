@@ -29,6 +29,8 @@
 #define DXL_POSITION        0x24
 #define DXL_SPEED           0x26
 #define DXL_TORQUE          0x28
+#define DXL_VOLTAGE         0x2a
+#define DXL_TEMPERATURE     0x2b
 
 // Instructions
 #define DXL_CMD_PING    0x01
@@ -118,7 +120,12 @@ void dxl_disable_all();
 void dxl_set_zero(ui8 id, float zero);
 void dxl_set_min_max(ui8 id, float min, float max);
 
+float dxl_average_voltage();
+
 // Get the configuration of a servo
 struct dxl_config *dxl_get_config(ui8 id);
+
+// Make a word
+int dxl_makeword(ui8 a, ui8 b);
 
 #endif // DXL_H

@@ -43,12 +43,22 @@ TERMINAL_COMMAND(dxl_monitor,
     while (!terminal_io()->io->available()) {
         terminal_io()->println();
         for (int id=1; id<=maxId; id++) {
+            char buffer[8];
             bool success;
-            float position = dxl_get_position(id, &success);
+            success = dxl_read(id, DXL_POSITION, buffer, sizeof(buffer));
+            float position = dxl_value_to_position(id, dxl_makeword(buffer[0], buffer[1]));
+            float voltage = buffer[6]/10.0;
+            float temperature = buffer[7];
+
             terminal_io()->print(id);
             terminal_io()->print(" is at ");
             if (success) {
-                terminal_io()->println(position);
+                terminal_io()->print(position);
+                terminal_io()->print("\t\t");
+                terminal_io()->print(voltage);
+                terminal_io()->print("V\t");
+                terminal_io()->print(temperature);
+                terminal_io()->println("C");
             } else {
                 terminal_io()->println("???");
             }
@@ -213,8 +223,7 @@ TERMINAL_COMMAND(dxl_calibrate,
                 float position = dxl_get_position(id, &success);
                 if (position < min) min = position;
                 if (position > max) max = position;
-                terminal_io()->print((char)(0xd));
-                terminal_io()->print("Min: ");
+                terminal_io()->print("\rMin: ");
                 terminal_io()->print(min);
                 terminal_io()->print("\tMax: ");
                 terminal_io()->print(max);
@@ -279,6 +288,13 @@ TERMINAL_COMMAND(dxl_snapshot,
             }
         }
     }
+}
+
+TERMINAL_COMMAND(dxl_voltage,
+        "Prints the dynamixel average voltage")
+{
+    terminal_io()->print("Average voltage: ");
+    terminal_io()->println(dxl_average_voltage());
 }
 
 #endif

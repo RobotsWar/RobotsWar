@@ -345,7 +345,7 @@ int dxl_read_word(ui8 id, ui8 addr, bool *success)
     success = (success != NULL) ? success : &dummy;
     *success = dxl_read(id, addr, (char*)buffer, sizeof(buffer));
 
-    return (buffer[0])|(buffer[1]<<8);
+    return dxl_makeword(buffer[0], buffer[1]);
 }
 
 void dxl_set_zero(ui8 id, float zero)
@@ -395,4 +395,27 @@ void dxl_wakeup(int steps)
         }
         delay(50);
     }
+}
+
+float dxl_average_voltage()
+{
+    bool success;
+    ui8 value;
+    float voltage = 0.0;
+    int n = 0;
+
+    for (int id=1; id<=DXL_MAX_ID; id++) {
+        value = dxl_read_byte(id, DXL_VOLTAGE, &success);
+        if (success) {
+            voltage += (value/10.0);
+            n++;
+        }
+    }
+
+    return voltage/n;
+}
+
+int dxl_makeword(ui8 a, ui8 b)
+{
+    return a|(b<<8);
 }

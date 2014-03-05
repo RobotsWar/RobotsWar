@@ -76,6 +76,13 @@ TERMINAL_COMMAND(start, "Enable all the servos")
     servos_enable_all();
 #if defined(DXL_AVAILABLE)
     dxl_wakeup();
+
+    float voltage = dxl_average_voltage();
+    if (voltage < 6) {
+        terminal_io()->print("Warning: voltage is low (");
+        terminal_io()->print(voltage);
+        terminal_io()->println(")");
+    }
 #endif
     terminal_io()->println("OK");
 }
