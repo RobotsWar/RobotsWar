@@ -265,13 +265,24 @@ TERMINAL_COMMAND(dxl_snapshot,
             
             if (success) {
                 position -= config->zero;
-                terminal_io()->print("dxl_set_position(");
-                terminal_io()->print(id);
-                terminal_io()->print(", ");
+                if (!argc) {
+                    terminal_io()->print("dxl_set_position(");
+                    terminal_io()->print(id);
+                    terminal_io()->print(", ");
+                }
                 terminal_io()->print(position);
-                terminal_io()->println(");");
+                if (!argc) {
+                    terminal_io()->print(")");
+                }
+                terminal_io()->print(" ");
+                if (!argc) {
+                    terminal_io()->println();
+                }
             }
         }
+    }
+    if (argc) {
+        terminal_io()->println();
     }
 }
 

@@ -53,7 +53,7 @@ TERMINAL_COMMAND(start, "Enable all the servos")
 
     float voltage = dxl_average_voltage();
     if (voltage < 6) {
-        terminal_io()->print("Warning: voltage is low (");
+        terminal_io()->print("Warning: dynamixel voltage is low (");
         terminal_io()->print(voltage);
         terminal_io()->println(")");
     }
