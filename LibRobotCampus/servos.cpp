@@ -3,6 +3,7 @@
 #include <string.h>
 #include "servos.h"
 #include "terminal.h"
+#include "dxl.h"
 
 /**
  * Servo structure
@@ -115,6 +116,7 @@ static void servos_configure_timer()
 void button_pressed()
 {
     servos_disable_all();
+    dxl_disable_all();
 }
 
 void servos_init()
@@ -139,7 +141,7 @@ void servos_init()
     /**
      * Set up board led and button
      */
-    pinMode(BOARD_BUTTON_PIN, INPUT);
+    pinMode(BOARD_BUTTON_PIN, INPUT_PULLDOWN);
     pinMode(BOARD_LED_PIN, OUTPUT);
     attachInterrupt(BOARD_BUTTON_PIN, button_pressed, RISING);
 }

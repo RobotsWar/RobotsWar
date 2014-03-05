@@ -1,3 +1,11 @@
+#include <stdlib.h>
+#include <string.h>
+#include "terminal.h"
+#include "servos.h"
+#include "dxl.h"
+
+#if defined(DXL_AVAILABLE)
+
 TERMINAL_COMMAND(dxl_scan,
         "Scans for dynamixel servos")
 {
@@ -163,22 +171,29 @@ TERMINAL_COMMAND(dxl_forward,
     }
 }
 
+static void save_zero(ui8 id)
+{
+    bool success;
+    float zero = dxl_get_position(id, &success);
+
+    if (success) {
+        dxl_set_zero(id, zero);
+        terminal_io()->print("Zero of ");
+        terminal_io()->print(id);
+        terminal_io()->print(" set to ");
+        terminal_io()->println(zero);
+    }
+}
+
 TERMINAL_COMMAND(dxl_zero,
         "Sets the current position as zero")
 {
     if (argc == 1) {
-        int id = atoi(argv[0]);
-        bool success;
-        float zero = dxl_get_position(id, &success);
-
-        if (success) {
-            terminal_io()->print("Zero set to ");
-            terminal_io()->println(zero);
-        } else {
-            terminal_io()->println("Unable to get servo position");
-        }
+        save_zero(atoi(argv[0]));
     } else {
-        terminal_io()->println("Usage: dxl_zero <id>");
+        for (int id=1; id<=DXL_MAX_ID; id++) {
+            save_zero(id);
+        }
     }
 }
 
@@ -210,7 +225,8 @@ TERMINAL_COMMAND(dxl_calibrate,
                 terminal_io()->io->read();
             }
             terminal_io()->println();
-            terminal_io()->println("Alright!");
+            terminal_io()->println("Min and max saved!");
+            dxl_set_min_max(id, min, max);
         } else {
             terminal_io()->println("Servo did not respond to ping");
         }
@@ -218,3 +234,51 @@ TERMINAL_COMMAND(dxl_calibrate,
         terminal_io()->println("Usage: dxl_calibrate <id>");
     }
 }
+
+TERMINAL_COMMAND(dxl_dump,
+        "Dumps the dynamixel config")
+{
+    for (int id=1; id<=DXL_MAX_ID; id++) {
+        struct dxl_config *config = dxl_get_config(id);
+
+        if (config!=NULL && config->configured) {
+            terminal_io()->print("dxl_set_zero(");
+            terminal_io()->print(id);
+            terminal_io()->print(", ");
+            terminal_io()->print(config->zero);
+            terminal_io()->println(");");
+
+            terminal_io()->print("dxl_set_min_max(");
+            terminal_io()->print(id);
+            terminal_io()->print(", ");
+            terminal_io()->print(config->min);
+            terminal_io()->print(", ");
+            terminal_io()->print(config->max);
+            terminal_io()->println(");");
+        }
+    }
+}
+
+TERMINAL_COMMAND(dxl_snapshot,
+        "Snapshots the current position")
+{
+    for (int id=1; id<=DXL_MAX_ID; id++) {
+        struct dxl_config *config = dxl_get_config(id);
+
+        if (config!=NULL && config->configured) {
+            bool success;
+            float position = dxl_get_position(id, &success);
+            
+            if (success) {
+                position -= config->zero;
+                terminal_io()->print("dxl_set_position(");
+                terminal_io()->print(id);
+                terminal_io()->print(", ");
+                terminal_io()->print(position);
+                terminal_io()->println(");");
+            }
+        }
+    }
+}
+
+#endif

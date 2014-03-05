@@ -75,7 +75,7 @@ TERMINAL_COMMAND(start, "Enable all the servos")
 {
     servos_enable_all();
 #if defined(DXL_AVAILABLE)
-    dxl_write_byte(DXL_BROADCAST, DXL_LED, 1);
+    dxl_wakeup();
 #endif
     terminal_io()->println("OK");
 }
@@ -84,9 +84,7 @@ TERMINAL_COMMAND(stop, "Disable all servos")
 {
     servos_disable_all();
 #if defined(DXL_AVAILABLE)
-    dxl_write_word(DXL_BROADCAST, DXL_GOAL_TORQUE, 0);
-    delay(1);
-    dxl_write_byte(DXL_BROADCAST, DXL_LED, 0);
+    dxl_disable_all();
 #endif
     terminal_io()->println("OK");
 }
@@ -411,7 +409,3 @@ TERMINAL_COMMAND(forward,
         }
     }
 }
-
-#if defined(DXL_AVAILABLE)
-#include "dxl_commands.cpp"
-#endif

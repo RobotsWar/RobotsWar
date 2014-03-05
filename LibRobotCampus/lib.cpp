@@ -2,6 +2,7 @@
 #include <string.h>
 #include "terminal.h"
 #include "servos.h"
+#include "dxl.h"
 
 TERMINAL_COMMAND(command_ui, 
     "Set position of a servo with UI. Usage: command_ui [label]")
@@ -478,6 +479,13 @@ void initTimer(uint8_t i)
 void button_pressed()
 {
     servos_disable_all();
+    dxl_disable_all();
+    terminal_io()->println("Booyah!");
+}
+
+TERMINAL_COMMAND(btn, "")
+{
+    terminal_io()->println(digitalRead(BOARD_BUTTON_PIN));
 }
 
 void servos_init()
@@ -493,7 +501,7 @@ void servos_init()
     /**
      * Set up board led and button
      */
-    pinMode(BOARD_BUTTON_PIN, INPUT);
+    pinMode(BOARD_BUTTON_PIN, INPUT_PULLDOWN);
     pinMode(BOARD_LED_PIN, OUTPUT);
     attachInterrupt(BOARD_BUTTON_PIN, button_pressed, RISING);
 }

@@ -32,9 +32,6 @@ static void internal_setup()
     // Initialise le mode WiFly
     WiFly.begin(921600);
     terminal_init(&WiFly);
-    
-    // Définit l'interruption @50hz
-    servos_attach_interrupt(setFlag);
 
     // Configure la led de la board
     pinMode(BOARD_LED_PIN, OUTPUT);
@@ -42,6 +39,9 @@ static void internal_setup()
 
     // Lance la configuration de l'utilisateur
     setup();
+    
+    // Définit l'interruption @50hz
+    servos_attach_interrupt(setFlag);
 }
 
 /**

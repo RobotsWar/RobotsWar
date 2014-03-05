@@ -17,6 +17,7 @@ CFLAGS_$(d) = $(LIBMAPLE_INCLUDES) $(WIRISH_INCLUDES) $(LIBROBOT_INCLUDES) -Wall
 cppSRCS_$(d) := terminal.cpp
 cppSRCS_$(d) += servos.cpp
 cppSRCS_$(d) += commands.cpp
+cppSRCS_$(d) += dxl_commands.cpp
 cppSRCS_$(d) += function.cpp
 cppSRCS_$(d) += dxl.cpp
 cppSRCS_$(d) += main.cpp

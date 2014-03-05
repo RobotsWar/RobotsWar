@@ -20,7 +20,7 @@ __attribute__((constructor))
 void dxl_init_configs()
 {
     for (int id=0; id<DXL_MAX_ID; id++) {
-        dxl_configs[id].configured = 0;
+        dxl_configs[id].configured = false;
         dxl_configs[id].zero = 0.0;
         dxl_configs[id].min = -150;
         dxl_configs[id].max = 150;
@@ -133,6 +133,7 @@ void dxl_init(int baudrate)
     digitalWrite(DXL_DIRECTION, LOW);
 
     DXL_DEVICE.begin(baudrate);
+    dxl_disable_all();
 #endif
 }
 
@@ -265,6 +266,13 @@ void dxl_write_word(ui8 id, ui8 addr, int value)
 
 void dxl_set_position(ui8 id, float position)
 {
+    if (id < DXL_MAX_ID && id != 0) {
+        struct dxl_config *config = &dxl_configs[id-1];
+        position += config->zero;
+        if (position < config->min) position = config->min;
+        if (position > config->max) position = config->max;
+    }
+
     dxl_write_word(id, DXL_GOAL_POSITION, dxl_position_to_value(id, position));
 }
 
@@ -273,14 +281,14 @@ void dxl_disable(ui8 id)
     dxl_write_word(id, DXL_GOAL_TORQUE, 0);
 }
 
-void dxl_enable(ui8 id)
+void dxl_enable(ui8 id, int torque)
 {   
     char buffer[4];
 
     buffer[0] = 0xff;
     buffer[1] = 0x03;
-    buffer[2] = 0xff;
-    buffer[3] = 0x03;
+    buffer[2] = (torque&0xff);
+    buffer[3] = ((torque>>8)&0xff);
 
     dxl_write(id, DXL_GOAL_SPEED, buffer, sizeof(buffer));
 }
@@ -338,4 +346,53 @@ int dxl_read_word(ui8 id, ui8 addr, bool *success)
     *success = dxl_read(id, addr, (char*)buffer, sizeof(buffer));
 
     return (buffer[0])|(buffer[1]<<8);
+}
+
+void dxl_set_zero(ui8 id, float zero)
+{
+    if (id < DXL_MAX_ID && id != 0) {
+        dxl_configs[id-1].configured = true;
+        dxl_configs[id-1].zero = zero;
+    }
+}
+
+void dxl_set_min_max(ui8 id, float min, float max)
+{
+    if (id < DXL_MAX_ID && id != 0) {
+        dxl_configs[id-1].configured = true;
+        dxl_configs[id-1].min = min;
+        dxl_configs[id-1].max = max;
+    }
+}
+
+struct dxl_config *dxl_get_config(ui8 id)
+{
+    if (id < DXL_MAX_ID && id != 0) {
+        return &dxl_configs[id-1];
+    } else {
+        return NULL;
+    }
+}
+
+void dxl_disable_all()
+{
+    dxl_write_word(DXL_BROADCAST, DXL_GOAL_TORQUE, 0);
+    delay(1);
+    dxl_write_byte(DXL_BROADCAST, DXL_LED, 0);
+}
+
+void dxl_wakeup(int steps)
+{
+    dxl_write_byte(DXL_BROADCAST, DXL_LED, 1);
+
+    for (int k=1; k<=steps; k++) {
+        for (int id=0; id<DXL_MAX_ID; id++) {
+            struct dxl_config *config = dxl_get_config(id);
+            if (config!=NULL && config->configured) {
+                dxl_enable(id, (1023*k)/steps);
+                delay(1);
+            }
+        }
+        delay(50);
+    }
 }

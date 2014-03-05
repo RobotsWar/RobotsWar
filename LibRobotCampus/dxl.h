@@ -60,8 +60,6 @@ struct dxl_config {
     float max;
 };
 
-extern struct dxl_config dxl_configs[DXL_MAX_ID];
-
 void dxl_packet_init(struct dxl_packet *packet);
 void dxl_packet_push_byte(struct dxl_packet *packet, ui8 b);
 int dxl_write_packet(struct dxl_packet *packet, ui8 *buffer);
@@ -72,7 +70,7 @@ ui8 dxl_compute_checksum(struct dxl_packet *packet);
 void dxl_send(struct dxl_packet *packet);
 
 // Initialize dynamixel system (if available)
-void dxl_init(int baudrate);
+void dxl_init(int baudrate = 1000000);
 
 // Run the dynamixel forward
 void dxl_forward();
@@ -110,6 +108,15 @@ float dxl_value_to_position(ui8 id, int value);
 
 // Torque
 void dxl_disable(ui8 id);
-void dxl_enable(ui8 id);
+void dxl_enable(ui8 id, int torque=1023);
+void dxl_wakeup(int steps=25);
+void dxl_disable_all();
+
+// Configure
+void dxl_set_zero(ui8 id, float zero);
+void dxl_set_min_max(ui8 id, float min, float max);
+
+// Get the configuration of a servo
+struct dxl_config *dxl_get_config(ui8 id);
 
 #endif // DXL_H
