@@ -22,6 +22,8 @@
 #endif
 
 // Registers
+#define DXL_COMPLIANCE_CW   0x1c
+#define DXL_COMPLIANCE_CCW  0x1d
 #define DXL_LED             0x19
 #define DXL_GOAL_POSITION   0x1E
 #define DXL_GOAL_SPEED      0x20
@@ -127,5 +129,6 @@ struct dxl_config *dxl_get_config(ui8 id);
 
 // Make a word
 int dxl_makeword(ui8 a, ui8 b);
+void dxl_compliance_slope(int slope);
 
 #endif // DXL_H

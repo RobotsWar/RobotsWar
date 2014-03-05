@@ -293,6 +293,14 @@ TERMINAL_COMMAND(dxl_voltage,
     terminal_io()->println(dxl_average_voltage());
 }
 
+TERMINAL_COMMAND(dxl_compliance,
+        "Sets the compliance slope")
+{
+    if (argc == 1) {
+        dxl_compliance_slope(atoi(argv[0]));
+    }
+}
+
 #endif
 
 TERMINAL_COMMAND(dxl_forward,

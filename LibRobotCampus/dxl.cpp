@@ -419,3 +419,13 @@ int dxl_makeword(ui8 a, ui8 b)
 {
     return a|(b<<8);
 }
+
+void dxl_compliance_slope(int slope)
+{
+    for (int id=1; id<DXL_MAX_ID; id++) {
+        dxl_write_byte(id, DXL_COMPLIANCE_CW, slope);
+        delay(1);
+        dxl_write_byte(id, DXL_COMPLIANCE_CCW, slope);
+        delay(1);
+    }
+}
