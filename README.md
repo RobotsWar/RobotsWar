@@ -36,6 +36,17 @@ Compilation
 - In `src/`, run `make` to compile
 - In `src/`, run `make install` to flash your board
 
+32-bits compatibilities
+-----------------------
+
+The arm binutils are 32-bits, if you are on a 64-bits system and want compatibility,
+you can try:
+
+```
+dpkg --add-architecture i386
+apt-get update
+apt-get install ia32-libs
+```
 
 Documentation
 -------------
