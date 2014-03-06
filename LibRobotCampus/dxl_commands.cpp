@@ -301,6 +301,14 @@ TERMINAL_COMMAND(dxl_compliance,
     }
 }
 
+TERMINAL_COMMAND(dxl_margin,
+        "Sets the compliance margin")
+{
+    if (argc == 1) {
+        dxl_compliance_margin(atoi(argv[0]));
+    }
+}
+
 #endif
 
 TERMINAL_COMMAND(dxl_forward,

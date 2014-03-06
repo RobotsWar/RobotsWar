@@ -22,8 +22,10 @@
 #endif
 
 // Registers
-#define DXL_COMPLIANCE_CW   0x1c
-#define DXL_COMPLIANCE_CCW  0x1d
+#define DXL_COMPLIANCE_MARGIN_CW 0x1A
+#define DXL_COMPLIANCE_MARGIN_CCW 0x1B
+#define DXL_COMPLIANCE_CW   0x1C
+#define DXL_COMPLIANCE_CCW  0x1D
 #define DXL_LED             0x19
 #define DXL_GOAL_POSITION   0x1E
 #define DXL_GOAL_SPEED      0x20
@@ -130,5 +132,6 @@ struct dxl_config *dxl_get_config(ui8 id);
 // Make a word
 int dxl_makeword(ui8 a, ui8 b);
 void dxl_compliance_slope(int slope);
+void dxl_compliance_margin(int margin);
 
 #endif // DXL_H

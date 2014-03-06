@@ -429,3 +429,14 @@ void dxl_compliance_slope(int slope)
         delay(1);
     }
 }
+
+void dxl_compliance_margin(int margin)
+{
+    for (int id=1; id<DXL_MAX_ID; id++) {
+        dxl_write_byte(id, DXL_COMPLIANCE_MARGIN_CW, margin);
+        delay(1);
+        dxl_write_byte(id, DXL_COMPLIANCE_MARGIN_CCW, margin);
+        delay(1);
+    }
+}
+
