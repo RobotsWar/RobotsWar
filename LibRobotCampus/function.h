@@ -1,14 +1,15 @@
 #ifndef _ROBOTCAMPUS_FUNCTION_H
 #define _ROBOTCAMPUS_FUNCTION_H
 
-#ifndef FUNCTION_MAX_POINTS
-#define FUNCTION_MAX_POINTS 16
+#ifndef FUNCTION_DEFAULT_POINTS
+#define FUNCTION_DEFAULT_POINTS 16
 #endif
 
 class Function
 {
     public:
         Function();
+        ~Function();
 
         /**
          * Add a point (x, y) to the function
@@ -30,13 +31,18 @@ class Function
          */
         double getMod(double x);
 
+        /**
+         * Checks if the function can contain one more element
+         */
+        void checkSize();
+
         void clear();
 
     protected:
         /**
          * Function points
          */
-        double points[FUNCTION_MAX_POINTS][2];
+        double *points;
 
         /**
          * Number of points
@@ -44,10 +50,15 @@ class Function
         int nbPoints;
 
         /**
+         * Array size
+         */
+        int size;
+
+        /**
          * The nth item of this array is the slope between the nth point and the
          * n+1th point
          */
-        double ds[FUNCTION_MAX_POINTS-1];
+        double *ds;
 };
 
 #endif

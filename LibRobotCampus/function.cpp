@@ -1,7 +1,30 @@
+#include <cstdlib>
+#include <cstdio>
 #include "function.h"
+
+#define POINT_X(n) points[2*(n)]
+#define POINT_Y(n) points[2*(n)+1]
 
 Function::Function() : nbPoints(0)
 {
+    size = FUNCTION_DEFAULT_POINTS;
+    points = (double *)malloc(2*size*sizeof(double));
+    ds = (double *)malloc(size*sizeof(double));
+}
+
+Function::~Function()
+{
+    free(points);
+    free(ds);
+}
+        
+void Function::checkSize()
+{
+    if (nbPoints+1 >= size) {
+        size *= 2;
+        points = (double *)realloc(points, 2*size*sizeof(double));
+        ds = (double *)realloc(ds, size*sizeof(double));
+    }
 }
 
 void Function::clear()
@@ -15,22 +38,22 @@ double Function::getXMax()
         return 0.0;
     }
 
-    return points[nbPoints-1][0];
+    return POINT_X(nbPoints-1);
 }
 
 void Function::addPoint(double x, double y)
 {
-    if (nbPoints < FUNCTION_MAX_POINTS) {
-        points[nbPoints][0] = x;
-        points[nbPoints][1] = y;
+    checkSize();
 
-        if (nbPoints > 0) {
-            ds[nbPoints-1] = points[nbPoints][1] - points[nbPoints-1][1];
-            ds[nbPoints-1] /= points[nbPoints][0] - points[nbPoints-1][0];
-        }
+    POINT_X(nbPoints) = x;
+    POINT_Y(nbPoints) = y;
 
-        nbPoints++;
+    if (nbPoints > 0) {
+        ds[nbPoints-1] = POINT_Y(nbPoints) - POINT_Y(nbPoints-1);
+        ds[nbPoints-1] /= POINT_X(nbPoints) - POINT_X(nbPoints-1);
     }
+
+    nbPoints++;
 }
 
 double Function::get(double x)
@@ -38,7 +61,7 @@ double Function::get(double x)
     int i;
     
     for (i=0; i<nbPoints; i++) {
-        if (points[i][0] >= x) {
+        if (POINT_X(i) >= x) {
             break;
         }
     }
@@ -47,7 +70,7 @@ double Function::get(double x)
         return 0.0;
     }
 
-    return points[i-1][1]+ds[i-1]*(x-points[i-1][0]);
+    return POINT_Y(i-1)+ds[i-1]*(x-POINT_X(i-1));
 }
 
 double Function::getMod(double x)
@@ -61,3 +84,6 @@ double Function::getMod(double x)
     return get(x);
 }
 
+
+#undef POINT_X
+#undef POINT_Y
