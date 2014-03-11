@@ -378,12 +378,12 @@ void dxl_disable_all()
 {
     dxl_write_word(DXL_BROADCAST, DXL_GOAL_TORQUE, 0);
     delay(1);
-    dxl_write_byte(DXL_BROADCAST, DXL_LED, 0);
+    dxl_write_byte(DXL_BROADCAST, DXL_LED, 1);
 }
 
 void dxl_wakeup(int steps)
 {
-    dxl_write_byte(DXL_BROADCAST, DXL_LED, 1);
+    dxl_write_byte(DXL_BROADCAST, DXL_LED, 2);
 
     for (int k=1; k<=steps; k++) {
         for (int id=0; id<DXL_MAX_ID; id++) {

@@ -16,7 +16,7 @@ TERMINAL_COMMAND(dxl_scan,
         maxId = atoi(argv[0]);
     }
 
-    // Turning all the LEDs off
+    // Turning all the LEDs red
     dxl_write_byte(DXL_BROADCAST, DXL_LED, 0);
 
     terminal_io()->print("Scanning for servos up to ");
