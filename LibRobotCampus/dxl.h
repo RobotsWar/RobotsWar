@@ -22,6 +22,9 @@
 #endif
 
 // Registers
+#define DXL_ID              0x03
+#define DXL_RETURN_DELAY    0x05
+#define DXL_RETURN_LEVEL    0x10
 #define DXL_COMPLIANCE_MARGIN_CW 0x1A
 #define DXL_COMPLIANCE_MARGIN_CCW 0x1B
 #define DXL_COMPLIANCE_CW   0x1C
@@ -133,5 +136,7 @@ struct dxl_config *dxl_get_config(ui8 id);
 int dxl_makeword(ui8 a, ui8 b);
 void dxl_compliance_slope(int slope);
 void dxl_compliance_margin(int margin);
+
+void dxl_configure(int id, int newId);
 
 #endif // DXL_H

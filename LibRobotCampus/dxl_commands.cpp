@@ -309,6 +309,33 @@ TERMINAL_COMMAND(dxl_margin,
     }
 }
 
+TERMINAL_COMMAND(dxl_configure,
+        "Configures a servo")
+{
+    if (argc < 1) {
+        terminal_io()->println("Usage: dxl_configure <newId> <id=1>");
+    } else {
+        int newId = atoi(argv[0]);
+        int id = 1;
+
+        if (argc == 2) {
+            id = atoi(argv[1]);
+        }
+
+        if (!dxl_ping(id)) {
+            terminal_io()->print("Servo ");
+            terminal_io()->print(id);
+            terminal_io()->println(" did not respond");
+        } else {
+            terminal_io()->print("Reconfiguring ");
+            terminal_io()->print(id);
+            terminal_io()->print(" to ");
+            terminal_io()->println(newId);
+            dxl_configure(id, newId);
+        }
+    }
+}
+
 #endif
 
 TERMINAL_COMMAND(dxl_forward,

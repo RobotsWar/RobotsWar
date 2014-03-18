@@ -137,6 +137,16 @@ void dxl_init(int baudrate)
 #endif
 }
 
+void dxl_write(ui8 *buffer, int n)
+{
+    digitalWrite(DXL_DIRECTION, HIGH); // TX
+    asm("nop");
+    DXL_DEVICE.write(buffer, n);
+    DXL_DEVICE.waitDataToBeSent();
+    asm("nop");
+    digitalWrite(DXL_DIRECTION, LOW); // RX
+}
+
 // Sends a packet to the dynamixel bus
 void dxl_send(struct dxl_packet *packet)
 {
@@ -147,12 +157,7 @@ void dxl_send(struct dxl_packet *packet)
     ui8 buffer[DXL_BUFFER_SIZE];
     int n = dxl_write_packet(packet, buffer);
 
-    digitalWrite(DXL_DIRECTION, HIGH); // TX
-    asm("nop");
-    DXL_DEVICE.write(buffer, n);
-    DXL_DEVICE.waitDataToBeSent();
-    asm("nop");
-    digitalWrite(DXL_DIRECTION, LOW); // RX
+    dxl_write(buffer, n);
 
     incoming_packet.process = false;
 }
@@ -200,9 +205,10 @@ void dxl_tick()
 void dxl_forward()
 {
     while (true && initialized) {
-        struct dxl_packet current_packet;
+        // struct dxl_packet current_packet;
 
         // Receiving packets
+        /*
         dxl_tick();
         if (incoming_packet.process) {
             incoming_packet.process = false;
@@ -210,15 +216,28 @@ void dxl_forward()
             int n = dxl_write_packet(&incoming_packet, buffer);
             SerialUSB.write(buffer, n);
         }
+        */
+        while (DXL_DEVICE.available()) {
+            SerialUSB.write(DXL_DEVICE.read());
+        }
 
         // Sending packets
-        while (SerialUSB.available()) {
+        ui8 buffer[128];
+        unsigned int n = 0;
+        while (SerialUSB.available() && n<sizeof(buffer)) {
+            buffer[n++] = SerialUSB.read();
+            /*
             dxl_packet_push_byte(&current_packet, SerialUSB.read());
 
             if (current_packet.process) {
                 current_packet.process = false;
                 dxl_send(&current_packet);
             }
+            */
+        }
+
+        if (n) {
+            dxl_write(buffer, n);
         }
     }
 }
@@ -279,6 +298,7 @@ void dxl_set_position(ui8 id, float position)
 void dxl_disable(ui8 id)
 {   
     dxl_write_word(id, DXL_GOAL_TORQUE, 0);
+    dxl_write_byte(id, DXL_LED, 1);
 }
 
 void dxl_enable(ui8 id, int torque)
@@ -291,6 +311,7 @@ void dxl_enable(ui8 id, int torque)
     buffer[3] = ((torque>>8)&0xff);
 
     dxl_write(id, DXL_GOAL_SPEED, buffer, sizeof(buffer));
+    dxl_write_byte(id, DXL_LED, 2);
 }
 
 int dxl_position_to_value(ui8 id, float position)
@@ -440,3 +461,9 @@ void dxl_compliance_margin(int margin)
     }
 }
 
+void dxl_configure(int id, int newId)
+{
+    dxl_write_byte(id, DXL_ID, newId);
+    dxl_write_byte(newId, DXL_RETURN_DELAY, 0);
+    dxl_write_byte(newId, DXL_RETURN_LEVEL, 1);
+}

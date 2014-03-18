@@ -4,9 +4,7 @@
 #include <terminal.h>
 #include <main.h>
 #include <dxl.h>
-
-// WiFly is routed on Serial3
-#define WiFly Serial3
+#include "wifly.h"
 
 volatile bool flag = false;
 volatile bool isUSB = false;

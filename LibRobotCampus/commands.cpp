@@ -3,6 +3,7 @@
 #include "terminal.h"
 #include "servos.h"
 #include "dxl.h"
+#include "wifly.h"
 
 TERMINAL_COMMAND(mute, "Mute/Unmute the terminal")
 {
@@ -13,7 +14,7 @@ TERMINAL_COMMAND(mute, "Mute/Unmute the terminal")
 }
 
 TERMINAL_COMMAND(forward,
-        "Go to forward mode, the Serial3 will be forwarded to USB and vice-versa. Usage: forward [baudrate]")
+        "Go to forward mode, the WiFly will be forwarded to USB and vice-versa. Usage: forward [baudrate]")
 {
     int baudrate = 921600;
     char buffer[512];
@@ -27,12 +28,12 @@ TERMINAL_COMMAND(forward,
     terminal_io()->print("Using baudrate ");
     terminal_io()->println(baudrate);
 
-    Serial3.begin(baudrate);
+    WiFly.begin(baudrate);
 
     while (1) {
         pos = 0;
-        while (Serial3.available() && pos < sizeof(buffer)) {
-            buffer[pos++] = Serial3.read();
+        while (WiFly.available() && pos < sizeof(buffer)) {
+            buffer[pos++] = WiFly.read();
         }
 
         if (pos > 0) {
@@ -40,7 +41,7 @@ TERMINAL_COMMAND(forward,
         }
 
         while (SerialUSB.available()) {
-            Serial3.write(SerialUSB.read());
+            WiFly.write(SerialUSB.read());
         }
     }
 }
