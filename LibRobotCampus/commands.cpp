@@ -4,6 +4,9 @@
 #include "servos.h"
 #include "dxl.h"
 #include "wifly.h"
+#include "commands.h"
+
+volatile bool started = false;
 
 TERMINAL_COMMAND(mute, "Mute/Unmute the terminal")
 {
@@ -60,6 +63,7 @@ TERMINAL_COMMAND(start, "Enable all the servos")
     }
 #endif
     terminal_io()->println("OK");
+    started = true;
 }
 
 TERMINAL_COMMAND(stop, "Disable all servos")
@@ -69,4 +73,5 @@ TERMINAL_COMMAND(stop, "Disable all servos")
     dxl_disable_all();
 #endif
     terminal_io()->println("OK");
+    started = false;
 }
