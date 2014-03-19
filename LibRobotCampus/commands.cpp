@@ -6,7 +6,7 @@
 #include "wifly.h"
 #include "commands.h"
 
-volatile bool started = false;
+bool started = false;
 
 TERMINAL_COMMAND(mute, "Mute/Unmute the terminal")
 {

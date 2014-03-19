@@ -34,7 +34,7 @@ BOARD_INCLUDE_DIR := $(MAKEDIR)/board-includes
 
 # Try "make help" for more information on BOARD and MEMORY_TARGET;
 # these default to a Maple Flash build.
-BOARD ?= maple_mini
+BOARD ?= opencm904
 MEMORY_TARGET ?= flash
 
 # $(BOARD)- and $(MEMORY_TARGET)-specific configuration
