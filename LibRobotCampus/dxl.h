@@ -1,6 +1,8 @@
 #ifndef DXL_H
 #define DXL_H
 
+#include <cstdlib>
+
 // Protocol definition
 #define DXL_BROADCAST   0xFE
 

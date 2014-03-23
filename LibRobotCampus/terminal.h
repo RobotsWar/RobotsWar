@@ -1,6 +1,8 @@
 #ifndef _ROBOTCAMPUS_TERMINAL_H
 #define _ROBOTCAMPUS_TERMINAL_H
 
+#include <cstdlib>
+
 #include <wirish/wirish.h>
 #include <wirish/Serial.h>
 #include <wirish/Print.h>
