@@ -6,7 +6,7 @@
 
 // Dynamixel specific commands
 
-#if defined(DXL_AVAILABLE) and !defined(DISABLE_ROBOTCAMPUS_COMMANDS)
+#if defined(DXL_AVAILABLE) and !defined(DISABLE_ROBOTCAMPUS_COMMANDS) and !defined(DISABLE_ALL_COMMANDS)
 
 TERMINAL_COMMAND(dxl_scan,
         "Scans for dynamixel servos")
