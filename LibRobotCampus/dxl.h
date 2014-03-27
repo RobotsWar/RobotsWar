@@ -43,6 +43,7 @@
 #define DXL_CMD_PING    0x01
 #define DXL_CMD_READ    0x02
 #define DXL_CMD_WRITE   0x03
+#define DXL_CMD_SYNC_WRITE      0x83
 
 // Dynamixel max id
 #define DXL_MAX_ID 20
@@ -69,6 +70,8 @@ struct dxl_config {
     float zero;
     float min;
     float max;
+    int position;
+    bool dirty;
 };
 
 void dxl_packet_init(struct dxl_packet *packet);
@@ -116,6 +119,9 @@ float dxl_get_position(ui8 id, bool *success = NULL);
 void dxl_set_position(ui8 id, float position);
 int dxl_position_to_value(ui8 id, float position);
 float dxl_value_to_position(ui8 id, int value);
+
+void dxl_async(bool async);
+void dxl_flush();
 
 // Torque
 void dxl_disable(ui8 id);

@@ -37,6 +37,11 @@ static void internal_setup()
 
     // Lance la configuration de l'utilisateur
     setup();
+
+    // Passage du bus dxl en asynchrone
+#if defined(DXL_AVAILABLE)
+    dxl_async(true);
+#endif
     
     // Définit l'interruption @50hz
     servos_attach_interrupt(setFlag);
@@ -61,6 +66,7 @@ static void internal_loop()
     if (flag) {
         flag = false;
         tick();
+        dxl_flush();
     }
 
     // Appelle la fonction loop de l'utilisateur
