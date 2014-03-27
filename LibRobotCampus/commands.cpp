@@ -8,6 +8,8 @@
 
 bool started = false;
 
+#if !defined(DISABLE_ALL_COMMANDS)
+
 TERMINAL_COMMAND(mute, "Mute/Unmute the terminal")
 {
     if (argc == 1) {
@@ -75,3 +77,5 @@ TERMINAL_COMMAND(stop, "Disable all servos")
     terminal_io()->println("OK");
     started = false;
 }
+
+#endif

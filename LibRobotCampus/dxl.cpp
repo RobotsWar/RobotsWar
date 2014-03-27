@@ -139,12 +139,14 @@ void dxl_init(int baudrate)
 
 void dxl_write(ui8 *buffer, int n)
 {
+#if defined(DXL_AVAILABLE)
     digitalWrite(DXL_DIRECTION, HIGH); // TX
     asm("nop");
     DXL_DEVICE.write(buffer, n);
     DXL_DEVICE.waitDataToBeSent();
     asm("nop");
     digitalWrite(DXL_DIRECTION, LOW); // RX
+#endif
 }
 
 // Sends a packet to the dynamixel bus
@@ -193,17 +195,20 @@ struct dxl_packet *dxl_send_reply(struct dxl_packet *request)
 // Tick, reading the incoming packet from the dynamixel device
 void dxl_tick()
 {
+#if defined(DXL_AVAILABLE)
     if (initialized) {
         while (DXL_DEVICE.available()) {
             ui8 c = DXL_DEVICE.read();
             dxl_packet_push_byte(&incoming_packet, c);
         }
     }
+#endif
 }
 
 // Forwarding USB to Dynamixel
 void dxl_forward()
 {
+#if defined(DXL_AVAILABLE)
     while (true && initialized) {
         // struct dxl_packet current_packet;
 
@@ -240,6 +245,7 @@ void dxl_forward()
             dxl_write(buffer, n);
         }
     }
+#endif
 }
 
 // Pings a servo and returns true if it's alive

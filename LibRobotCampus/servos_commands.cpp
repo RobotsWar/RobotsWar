@@ -5,7 +5,7 @@
 
 // Servos specific commands
 
-#if !defined(DISABLE_ROBOTCAMPUS_COMMANDS)
+#if !defined(DISABLE_ROBOTCAMPUS_COMMANDS) and !defined(DISABLE_ALL_COMMANDS)
 
 TERMINAL_COMMAND(command_ui, 
     "Set position of a servo with UI. Usage: command_ui [label]")
