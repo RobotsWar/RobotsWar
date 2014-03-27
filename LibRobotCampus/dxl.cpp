@@ -290,8 +290,7 @@ void dxl_write_word(ui8 id, ui8 addr, int value)
     dxl_write(id, addr, (char*)buffer, sizeof(buffer));
 }
 
-TERMINAL_PARAMETER_BOOL(dxl_is_async, "DIA", false);
-// static volatile bool dxl_is_async = false;
+static volatile bool dxl_is_async = false;
 
 static int dxl_order_to_value(ui8 id, float position)
 {
