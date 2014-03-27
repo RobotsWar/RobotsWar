@@ -30,3 +30,6 @@ class SocketCom:
         except:
             print('ROBOT: Connection closed')
             self.com.connected = False
+
+    def flush(self):
+        pass

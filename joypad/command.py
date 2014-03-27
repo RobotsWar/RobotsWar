@@ -46,6 +46,7 @@ def ToggleEnable():
     global enabled, terminal
     enabled = not enabled
     if enabled:
+        terminal.send('mute', 1)
         terminal.send('start')
     else:
         terminal.send('stop')

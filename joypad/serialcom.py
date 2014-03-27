@@ -15,12 +15,12 @@ class SerialCom:
     def connect(self):
         try:
             print('ROBOT: Connecting to %s, baudrate=%d...' % self.remote)
-            self.serial = serial.Serial(self.remote[0], self.remote[1])
+            self.serial = serial.Serial(self.remote[0], self.remote[1], timeout=0)
             self.connected = True
             print('ROBOT: Connected')
         except:
             self.connected = False
-            print('ROBOT: Unable to open port %s, baudrate=%d' % self.host)
+            print('ROBOT: Unable to open port %s, baudrate=%d' % self.remote)
 
     def send(self, command):
         try:
@@ -28,3 +28,10 @@ class SerialCom:
         except:
             print('ROBOT: Connection closed')
             self.com.connected = False
+
+    def flush(self):
+        try:
+            while self.serial.read() != '':
+                pass
+        except:
+            self.connected = False

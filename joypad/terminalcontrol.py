@@ -27,6 +27,7 @@ class TerminalControl:
     def DispatchThread(self):
         while self.running:
             self.processOneItem()
+            self.com.flush()
             time.sleep(1.0/self.frequency)
 
     def processOneItem(self):
@@ -43,6 +44,7 @@ class TerminalControl:
         if not self.com.connected and self.running:
             self.com.connect()
         if self.com.connected:
+            print(command)
             self.com.send(command)
         del self.queue[key]
 
