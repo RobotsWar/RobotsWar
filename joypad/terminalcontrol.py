@@ -6,7 +6,8 @@ import socket, threading, time, mutex, random
     Remotely control the terminal
 """
 class TerminalControl:
-    def __init__(self, com, frequency = 50):
+    def __init__(self, com, frequency = 50, debug = False):
+        self.debug = debug
         self.com = com;
         self.running = True
         self.com.connect()
@@ -44,7 +45,8 @@ class TerminalControl:
         if not self.com.connected and self.running:
             self.com.connect()
         if self.com.connected:
-            print(command)
+            if self.debug:
+                print('SENDING: ' + command.strip())
             self.com.send(command)
         del self.queue[key]
 
@@ -52,4 +54,7 @@ class TerminalControl:
         self.mutex.acquire()
         self.queue[key] = values;
         self.mutex.release()
+
+def lp(f, p = 2):
+    return ('%.'+str(p)+'f') % f
 
