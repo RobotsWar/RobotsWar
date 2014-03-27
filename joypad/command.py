@@ -3,10 +3,17 @@
 
 from pypad import *
 from terminalcontrol import *
+from socketcom import *
+from serialcom import *
 
-robot = ('10.0.0.1', 2000) # Robot address
-joypad = '/dev/input/js0'  # Joypad device
+# Mode serial
+robot = SerialCom('/dev/ttyACM0', 115200)
 
+# Mode socket
+# robot = SocketCom('10.0.0.1', 2000)
+
+# Joypad device
+joypad = '/dev/input/js0'  
 
 # Open the connection
 try:

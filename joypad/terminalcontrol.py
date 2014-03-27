@@ -6,11 +6,10 @@ import socket, threading, time, mutex, random
     Remotely control the terminal
 """
 class TerminalControl:
-    def __init__(self, host, frequency = 50):
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    def __init__(self, com, frequency = 50):
+        self.com = com;
         self.running = True
-        self.host = host
-        self.connect();
+        self.com.connect()
         self.mutex = threading.Lock()
         self.queue = {}
         self.frequency = frequency
@@ -23,15 +22,7 @@ class TerminalControl:
 
     def connect(self):
         if self.running:
-            try:
-                print('ROBOT: Connecting to %s:%d...' % self.host)
-                self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                self.socket.connect(self.host)
-                self.connected = True
-                print('ROBOT: Connected')
-            except:
-                self.connected = False
-                print('ROBOT: Unable to connect to %s:%d' % self.host)
+            self.com.connect()
 
     def DispatchThread(self):
         while self.running:
@@ -49,18 +40,11 @@ class TerminalControl:
     def process(self, key):
         values = self.queue[key]
         command = "%s %s\n" % (key, ' '.join(map(str,list(values))))
-        if not self.connected and self.running:
-            self.connect()
-        if self.connected:
-            self.doSend(command)
+        if not self.com.connected and self.running:
+            self.com.connect()
+        if self.com.connected:
+            self.com.send(command)
         del self.queue[key]
-
-    def doSend(self, command):
-        try:
-            self.socket.send(command)
-        except:
-            print('ROBOT: Connection closed')
-            self.connected = False
 
     def send(self, key, *values):
         self.mutex.acquire()
