@@ -118,6 +118,7 @@ int dxl_read_word(ui8 id, ui8 addr, bool *success = NULL);
 
 // Position
 float dxl_get_position(ui8 id, bool *success = NULL);
+float dxl_get_target_position(ui8 id);
 void dxl_set_position(ui8 id, float position);
 int dxl_position_to_value(ui8 id, float position);
 float dxl_value_to_position(ui8 id, int value);

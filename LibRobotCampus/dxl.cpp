@@ -343,15 +343,27 @@ void dxl_flush()
 void dxl_set_position(ui8 id, float position)
 {
     int value = dxl_order_to_value(id, position);
-    if (dxl_is_async) { // Send it later
-        if (id < DXL_MAX_ID && id != 0) {
-            struct dxl_config *config = &dxl_configs[id-1];
-            config->position = value;
+    if (id < DXL_MAX_ID && id != 0) {
+        struct dxl_config *config = &dxl_configs[id-1];
+        if (config->position != value && dxl_is_async) {
             config->dirty = true;
         }
-    } else { // Do it now
+        config->position = value;
+    }
+
+    if (!dxl_is_async) {
         dxl_write_word(id, DXL_GOAL_POSITION, value);
     }
+}
+
+float dxl_get_target_position(ui8 id)
+{
+    if (id < DXL_MAX_ID && id != 0) {
+        struct dxl_config *config = &dxl_configs[id-1];
+        return dxl_value_to_position(id, config->position);
+    }
+
+    return 0.0;
 }
 
 void dxl_disable(ui8 id)
