@@ -39,6 +39,12 @@ class TerminalControl:
             choice = random.choice(keys)
             self.process(choice)
         self.mutex.release()
+    
+    def flushCommands(self):
+        self.mutex.acquire()
+        self.lastVal = {}
+        self.queue = {}
+        self.mutex.release()
 
     def process(self, key):
         values = self.queue[key]
