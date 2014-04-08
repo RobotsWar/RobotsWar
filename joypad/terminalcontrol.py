@@ -13,6 +13,7 @@ class TerminalControl:
         self.com.connect()
         self.mutex = threading.Lock()
         self.queue = {}
+        self.lastVal = {}
         self.frequency = frequency
         self.thread = threading.Thread(None, self.DispatchThread, None, ())
         self.thread.start()
@@ -41,13 +42,15 @@ class TerminalControl:
 
     def process(self, key):
         values = self.queue[key]
-        command = "%s %s\n" % (key, ' '.join(map(str,list(values))))
-        if not self.com.connected and self.running:
-            self.com.connect()
-        if self.com.connected:
-            if self.debug:
-                print('SENDING: ' + command.strip())
-            self.com.send(command)
+        if key not in self.lastVal or self.lastVal[key] != values:
+            self.lastVal[key] = values
+            command = "%s %s\n" % (key, ' '.join(map(str,list(values))))
+            if not self.com.connected and self.running:
+                self.com.connect()
+            if self.com.connected:
+                if self.debug:
+                    print('SENDING: ' + command.strip())
+                self.com.send(command)
         del self.queue[key]
 
     def send(self, key, *values):
