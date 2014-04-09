@@ -31,8 +31,9 @@ class SerialCom:
             self.connected = False
 
     def flush(self):
-        try:
-            while self.serial.read() != '':
-                pass
-        except:
-            self.connected = False
+        if self.connected:
+            try:
+                while self.serial.read() != '':
+                    pass
+            except:
+                self.connected = False

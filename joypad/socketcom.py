@@ -37,9 +37,10 @@ class SocketCom:
         self.connected = False
 
     def flush(self):
-        self.socket.setblocking(0)
-        try:
-            while self.socket.recv(1) != '':
+        if self.connected:
+            self.socket.setblocking(0)
+            try:
+                while self.socket.recv(1) != '':
+                    pass
+            except:
                 pass
-        except:
-            pass
