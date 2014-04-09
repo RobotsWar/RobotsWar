@@ -138,7 +138,7 @@ void dxl_init(int baudrate)
 #endif
 }
 
-void dxl_write(ui8 *buffer, int n)
+void dxl_write_serial(ui8 *buffer, int n)
 {
 #if defined(DXL_AVAILABLE)
     digitalWrite(DXL_DIRECTION, HIGH); // TX
@@ -160,7 +160,7 @@ void dxl_send(struct dxl_packet *packet)
     ui8 buffer[DXL_BUFFER_SIZE];
     int n = dxl_write_packet(packet, buffer);
 
-    dxl_write(buffer, n);
+    dxl_write_serial(buffer, n);
 
     incoming_packet.process = false;
 }
@@ -243,7 +243,7 @@ void dxl_forward()
         }
 
         if (n) {
-            dxl_write(buffer, n);
+            dxl_write_serial(buffer, n);
         }
     }
 #endif
