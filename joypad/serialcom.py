@@ -10,7 +10,8 @@ class SerialCom:
         self.remote = (device, baudrate)
 
     def disconnect(self):
-        self.socket.close();
+        self.serial.close()
+        self.connected = False
 
     def connect(self):
         try:
@@ -27,7 +28,7 @@ class SerialCom:
             self.serial.write(command)
         except:
             print('ROBOT: Connection closed')
-            self.com.connected = False
+            self.connected = False
 
     def flush(self):
         try:

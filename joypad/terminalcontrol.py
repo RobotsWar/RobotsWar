@@ -20,7 +20,7 @@ class TerminalControl:
 
     def disconnect(self):
         print('ROBOT: Disconnecting')
-        self.socket.close();
+        self.com.disconnect()
 
     def connect(self):
         if self.running:

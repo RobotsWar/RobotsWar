@@ -11,7 +11,8 @@ class SocketCom:
         self.host = (host, port)
 
     def disconnect(self):
-        self.socket.close();
+        self.socket.close()
+        self.connected = False
 
     def connect(self):
         try:
@@ -29,7 +30,16 @@ class SocketCom:
             self.socket.send(command)
         except:
             print('ROBOT: Connection closed')
-            self.com.connected = False
+            self.connected = False
+
+    def close(self):
+        self.socket.close()
+        self.connected = False
 
     def flush(self):
-        pass
+        self.socket.setblocking(0)
+        try:
+            while self.socket.recv(1) != '':
+                pass
+        except:
+            pass
