@@ -141,6 +141,13 @@ void dxl_init(int baudrate)
 void dxl_write_serial(ui8 *buffer, int n)
 {
 #if defined(DXL_AVAILABLE)
+    // Flushing incoming data
+    while (DXL_DEVICE.available()) {
+        char dummy = DXL_DEVICE.read();
+        (void)dummy;
+    }
+
+    // Sending packet
     digitalWrite(DXL_DIRECTION, HIGH); // TX
     asm("nop");
     DXL_DEVICE.write(buffer, n);
