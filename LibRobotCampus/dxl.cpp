@@ -4,14 +4,17 @@
 #include <wirish/wirish.h>
 #include "terminal.h"
 #include "dxl.h"
+#include "crc16.cpp"
 
 volatile static bool initialized = false;
 volatile static unsigned int dxl_timeout;
 struct dxl_packet incoming_packet;
 struct dxl_config dxl_configs[DXL_MAX_ID];
 
+// Initializes a packet
 void dxl_packet_init(struct dxl_packet *packet)
 {
+    packet->crc16 = 0;
     packet->dxl_state = 0;
     packet->process = false;
 }
@@ -28,6 +31,7 @@ void dxl_init_configs()
     }
 }
 
+#ifdef DXL_VERSION_1
 /**
  * Writes the given packet to the buffer
  */
@@ -50,6 +54,51 @@ int dxl_write_packet(struct dxl_packet *packet, ui8 *buffer)
 
     return pos;
 }
+#endif
+
+#ifdef DXL_VERSION_2
+/**
+ * Writes the given packet to the buffer
+ */
+int dxl_write_packet(struct dxl_packet *packet, ui8 *buffer)
+{
+    unsigned int i;
+    unsigned int pos = 0;
+
+    buffer[pos++] = 0xff;
+    buffer[pos++] = 0xff;
+    buffer[pos++] = 0xfd;
+    buffer[pos++] = 0x00;
+    buffer[pos++] = packet->id;
+    buffer[pos++] = (packet->parameter_nb+3)&0xff;
+    buffer[pos++] = ((packet->parameter_nb+3)>>8)&0xff;
+    buffer[pos++] = packet->instruction;
+
+    // Stuffing
+    int ff = 0;
+    for (i=0; i<packet->parameter_nb; i++) {
+        if (packet->parameters[i] == 0xfd && ff>=2) {
+            ff = 0;
+            // 0xff 0xff 0xfd becomes 0xff 0xff 0xfd 0xfd
+            buffer[pos++] = 0xfd;
+            buffer[pos++] = 0xfd;
+        } else {
+            if (packet->parameters[i] == 0xff) {
+                ff++;
+            } else {
+                ff = 0;
+            }
+            buffer[pos++] = packet->parameters[i];
+        }
+    }
+
+    unsigned short crc16 = update_crc(0, buffer, pos);
+    buffer[pos++] = crc16&0xff;
+    buffer[pos++] = (crc16>>8)&0xff;
+
+    return pos;
+}
+#endif
 
 void dxl_copy_packet(struct dxl_packet *from, struct dxl_packet *to)
 {
@@ -73,6 +122,7 @@ ui8 dxl_compute_checksum(struct dxl_packet *packet) {
     return (ui8) sum;
 }
 
+#ifdef DXL_VERSION_1
 void dxl_packet_push_byte(struct dxl_packet *packet, ui8 b)
 {
     switch (packet->dxl_state) {
@@ -103,7 +153,7 @@ void dxl_packet_push_byte(struct dxl_packet *packet, ui8 b)
                 goto pc_error;
             }
     }
-        
+    
     packet->dxl_state++;
     return;
 
@@ -117,6 +167,85 @@ pc_ended:
 pc_error:
     packet->dxl_state = 0;
 }
+#endif
+
+#ifdef DXL_VERSION_2
+void dxl_packet_push_byte(struct dxl_packet *packet, ui8 b)
+{
+    switch (packet->dxl_state) {
+        case 0:
+        case 1:
+            if (b != 0xff) {
+                goto pc_error;
+            }
+            break;
+        case 2:
+            if (b != 0xfd) {
+                goto pc_error;
+            }
+            break;
+        case 3:
+            if (b != 0x00) {
+                goto pc_error;
+            }
+            break;
+        case 4:
+            packet->id = b;
+            break;
+        case 5:
+            packet->parameter_nb = b;
+            break;
+        case 6:
+            packet->parameter_nb += (b<<8);
+            packet->parameter_nb -= 3;
+            break;
+        case 7:
+            packet->instruction = b;
+            break;
+        case 0x10000:
+            packet->crc16 -= b&0xff;
+            break;
+        case 0x10001:
+            packet->crc16 -= (b<<8)&0xff00;
+            goto pc_ended;
+            break;
+        default:
+            packet->parameters[packet->dxl_state - 8] = b;
+
+            if (packet->dxl_state - 8 > DXL_MAX_PARAMS) {
+                goto pc_error;
+            }
+
+            if (packet->dxl_state-7 >= packet->parameter_nb) {
+                packet->dxl_state = 0xffff;
+            }
+
+            break;
+    }
+
+    if (packet->dxl_state < 0x10000) {
+        packet->crc16 = update_crc(packet->crc16, &b, 1);
+    }
+        
+    packet->dxl_state++;
+    return;
+
+pc_ended:
+    if (packet->crc16 == 0) {
+        packet->process = true;
+    } else {
+        terminal_io()->println("Error!!!");
+        terminal_io()->println((int)packet->crc16);
+    }
+
+    packet->crc16 = 0;
+    packet->dxl_state = 0;
+    return;
+pc_error:
+    packet->crc16 = 0;
+    packet->dxl_state = 0;
+}
+#endif
 
 void dxl_init(int baudrate)
 {
@@ -263,22 +392,32 @@ bool dxl_ping(ui8 id)
     request.id = id;
     request.instruction = DXL_CMD_PING;
     request.parameter_nb = 0;
-    
-    return (dxl_send_reply(&request)!=NULL);
+
+    struct dxl_packet *reply = dxl_send_reply(&request);
+
+    return (reply!=NULL) && reply->id==id;
 }
 
 // Write some data to a dynamixel servo
 void dxl_write(ui8 id, ui8 addr, char *data, int size)
 {
+    int pos = 0;
     struct dxl_packet request;
     request.id = id;
     request.instruction = DXL_CMD_WRITE;
-    request.parameter_nb = size+1;
-    request.parameters[0] = addr;
+#ifdef DXL_VERSION_1
+        request.parameters[pos++] = addr;
+#endif
+#ifdef DXL_VERSION_2
+        request.parameters[pos++] = addr&0xff;
+        request.parameters[pos++] = (addr>>8)&0xff;
+#endif
 
     for (int i=0; i<size; i++) {
-        request.parameters[1+i] = data[i];
+        request.parameters[pos++] = data[i];
     }
+    
+    request.parameter_nb = pos;
 
     dxl_send(&request);
 }
@@ -325,25 +464,42 @@ void dxl_flush()
         struct dxl_packet request;
         int n = 0;
 
+#ifdef DXL_VERSION_1
+#define DXL_OFFSET 2
+#endif
+#ifdef DXL_VERSION_2
+#define DXL_OFFSET 4
+#endif
+
         for (ui8 id=1; id<=DXL_MAX_ID && n<10; id++) {
             struct dxl_config *config = &dxl_configs[id-1];
             if (config->dirty) {
                 hasDirty = true;
                 config->dirty = false;
-                request.parameters[3*n+2] = id;
-                request.parameters[3*n+3] = config->position&0xff;
-                request.parameters[3*n+4] = (config->position>>8)&0xff;
+                request.parameters[3*n+0+DXL_OFFSET] = id;
+                request.parameters[3*n+1+DXL_OFFSET] = config->position&0xff;
+                request.parameters[3*n+2+DXL_OFFSET] = (config->position>>8)&0xff;
                 n++;
             }
         }
 
-        request.id = DXL_BROADCAST;
-        request.instruction = DXL_CMD_SYNC_WRITE;
-        request.parameter_nb = 2+3*n;
-        request.parameters[0] = DXL_GOAL_POSITION;
-        request.parameters[1] = 2;
+        if (hasDirty) {
+            request.id = DXL_BROADCAST;
+            request.instruction = DXL_CMD_SYNC_WRITE;
+            request.parameter_nb = 4+3*n;
+#ifdef DXL_VERSION_1
+            request.parameters[0] = DXL_GOAL_POSITION;
+            request.parameters[1] = 2;
+#endif
+#ifdef DXL_VERSION_2
+            request.parameters[0] = DXL_GOAL_POSITION;
+            request.parameters[1] = 0;
+            request.parameters[2] = 2;
+            request.parameters[3] = 0;
+#endif
 
-        dxl_send(&request);
+            dxl_send(&request);
+        }
     }
 }
 
@@ -376,19 +532,17 @@ float dxl_get_target_position(ui8 id)
 void dxl_disable(ui8 id)
 {   
     dxl_write_word(id, DXL_GOAL_TORQUE, 0);
+    delay(1);
     dxl_write_byte(id, DXL_LED, 1);
+    delay(1);
 }
 
 void dxl_enable(ui8 id, int torque)
 {   
-    char buffer[4];
-
-    buffer[0] = 0xff;
-    buffer[1] = 0x03;
-    buffer[2] = (torque&0xff);
-    buffer[3] = ((torque>>8)&0xff);
-
-    dxl_write(id, DXL_GOAL_SPEED, buffer, sizeof(buffer));
+    dxl_write_word(id, DXL_GOAL_SPEED, 1023);
+    delay(1);
+    dxl_write_word(id, DXL_GOAL_TORQUE, 1023);
+    delay(1);
     dxl_write_byte(id, DXL_LED, 2);
 }
 
@@ -413,15 +567,28 @@ bool dxl_read(ui8 id, ui8 addr, char *output, int size)
     struct dxl_packet request;
     request.id = id;
     request.instruction = DXL_CMD_READ;
-    request.parameter_nb = 2;
-    request.parameters[0] = addr;
-    request.parameters[1] = size;
+#ifdef DXL_VERSION_1
+        request.parameter_nb = 2;
+        request.parameters[0] = addr;
+        request.parameters[1] = size;
+#endif
+#ifdef DXL_VERSION_2
+        request.parameter_nb = 4;
+        request.parameters[0] = addr&0xff;
+        request.parameters[1] = (addr>>8)&0xff;
+        request.parameters[2] = size&0xff;
+        request.parameters[3] = (size>>8)&0xff;
+#endif
 
     struct dxl_packet *reply = dxl_send_reply(&request);
 
     if (reply != NULL) {
+        int offset = 0;
+#ifdef DXL_VERSION_2
+        offset = 1;
+#endif
         for (int i=0; i<reply->parameter_nb; i++) {
-            output[i] = reply->parameters[i];
+            output[i] = reply->parameters[i+offset];
         }
     }
 
@@ -542,6 +709,11 @@ void dxl_compliance_margin(int margin)
 void dxl_configure(int id, int newId)
 {
     dxl_write_byte(id, DXL_ID, newId);
-    dxl_write_byte(newId, DXL_RETURN_DELAY, 0);
-    dxl_write_byte(newId, DXL_RETURN_LEVEL, 1);
+
+    for (int i=0; i<5; i++) {
+        delay(5);
+        dxl_write_byte(newId, DXL_RETURN_DELAY, 0);
+        delay(5);
+        dxl_write_byte(newId, DXL_RETURN_LEVEL, 1);
+    }
 }

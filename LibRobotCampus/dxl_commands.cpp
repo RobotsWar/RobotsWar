@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "terminal.h"
@@ -45,12 +46,24 @@ TERMINAL_COMMAND(dxl_monitor,
     while (!terminal_io()->io->available()) {
         terminal_io()->println();
         for (int id=1; id<=maxId; id++) {
+
+#ifdef DXL_VERSION_1
             char buffer[8];
             bool success;
             success = dxl_read(id, DXL_POSITION, buffer, sizeof(buffer));
             float position = dxl_value_to_position(id, dxl_makeword(buffer[0], buffer[1]));
             float voltage = buffer[6]/10.0;
             float temperature = buffer[7];
+#endif
+
+#ifdef DXL_VERSION_2
+            char buffer[10];
+            bool success;
+            success = dxl_read(id, DXL_POSITION, buffer, sizeof(buffer));
+            float position = dxl_value_to_position(id, dxl_makeword(buffer[0], buffer[1]));
+            float voltage = buffer[8]/10.0;
+            float temperature = buffer[9];
+#endif
 
             terminal_io()->print(id);
             terminal_io()->print(" is at ");
