@@ -9,6 +9,8 @@
 #include "crc16.cpp"
 #endif
 
+#define DXL_WRITE_DELAY 5
+
 volatile static bool initialized = false;
 volatile static unsigned int dxl_timeout;
 struct dxl_packet incoming_packet;
@@ -535,17 +537,17 @@ float dxl_get_target_position(ui8 id)
 void dxl_disable(ui8 id)
 {   
     dxl_write_word(id, DXL_GOAL_TORQUE, 0);
-    delay(1);
+    delay(DXL_WRITE_DELAY);
     dxl_write_byte(id, DXL_LED, 1);
-    delay(1);
+    delay(DXL_WRITE_DELAY);
 }
 
 void dxl_enable(ui8 id, int torque)
 {   
     dxl_write_word(id, DXL_GOAL_SPEED, 1023);
-    delay(1);
+    delay(DXL_WRITE_DELAY);
     dxl_write_word(id, DXL_GOAL_TORQUE, torque);
-    delay(1);
+    delay(DXL_WRITE_DELAY);
     dxl_write_byte(id, DXL_LED, 2);
 }
 
@@ -655,14 +657,18 @@ void dxl_wakeup(int steps)
     dxl_write_byte(DXL_BROADCAST, DXL_LED, 2);
 
     for (int k=1; k<=steps; k++) {
+        int timeToSleep = 50;
         for (int id=0; id<DXL_MAX_ID; id++) {
             struct dxl_config *config = dxl_get_config(id);
             if (config!=NULL && config->configured) {
                 dxl_enable(id, (1023*k)/steps);
-                delay(1);
+                delay(DXL_WRITE_DELAY);
+                timeToSleep -= DXL_WRITE_DELAY;
             }
         }
-        delay(50);
+        if (timeToSleep > 0) {
+            delay(timeToSleep);
+        }
     }
 }
 
@@ -693,9 +699,9 @@ void dxl_compliance_slope(int slope)
 {
     for (int id=1; id<DXL_MAX_ID; id++) {
         dxl_write_byte(id, DXL_COMPLIANCE_CW, slope);
-        delay(1);
+        delay(DXL_WRITE_DELAY);
         dxl_write_byte(id, DXL_COMPLIANCE_CCW, slope);
-        delay(1);
+        delay(DXL_WRITE_DELAY);
     }
 }
 
@@ -703,9 +709,9 @@ void dxl_compliance_margin(int margin)
 {
     for (int id=1; id<DXL_MAX_ID; id++) {
         dxl_write_byte(id, DXL_COMPLIANCE_MARGIN_CW, margin);
-        delay(1);
+        delay(DXL_WRITE_DELAY);
         dxl_write_byte(id, DXL_COMPLIANCE_MARGIN_CCW, margin);
-        delay(1);
+        delay(DXL_WRITE_DELAY);
     }
 }
 
@@ -714,9 +720,9 @@ void dxl_configure(int id, int newId)
     dxl_write_byte(id, DXL_ID, newId);
 
     for (int i=0; i<5; i++) {
-        delay(5);
+        delay(DXL_WRITE_DELAY);
         dxl_write_byte(newId, DXL_RETURN_DELAY, 0);
-        delay(5);
+        delay(DXL_WRITE_DELAY);
         dxl_write_byte(newId, DXL_RETURN_LEVEL, 1);
     }
 }
