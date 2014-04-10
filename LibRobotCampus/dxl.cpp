@@ -544,7 +544,7 @@ void dxl_enable(ui8 id, int torque)
 {   
     dxl_write_word(id, DXL_GOAL_SPEED, 1023);
     delay(1);
-    dxl_write_word(id, DXL_GOAL_TORQUE, 1023);
+    dxl_write_word(id, DXL_GOAL_TORQUE, torque);
     delay(1);
     dxl_write_byte(id, DXL_LED, 2);
 }
