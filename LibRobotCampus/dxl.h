@@ -3,7 +3,9 @@
 
 #include <cstdlib>
 
+#if !defined(DXL_VERSION_1)
 #define DXL_VERSION_2
+#endif
 
 // Protocol definition
 #define DXL_BROADCAST   0xFE

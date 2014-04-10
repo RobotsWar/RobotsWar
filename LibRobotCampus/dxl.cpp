@@ -4,7 +4,10 @@
 #include <wirish/wirish.h>
 #include "terminal.h"
 #include "dxl.h"
+
+#ifdef DXL_VERSION_2
 #include "crc16.cpp"
+#endif
 
 volatile static bool initialized = false;
 volatile static unsigned int dxl_timeout;
