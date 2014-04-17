@@ -504,6 +504,7 @@ void dxl_flush()
 #endif
 
             dxl_send(&request);
+            delay(DXL_WRITE_DELAY);
         }
     }
 }
