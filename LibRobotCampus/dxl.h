@@ -175,5 +175,6 @@ void dxl_compliance_slope(int slope);
 void dxl_compliance_margin(int margin);
 
 void dxl_configure(int id, int newId);
+void dxl_configure_all();
 
 #endif // DXL_H

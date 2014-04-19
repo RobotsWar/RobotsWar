@@ -716,6 +716,16 @@ void dxl_compliance_margin(int margin)
     }
 }
 
+void dxl_configure_all()
+{
+    for (int i=0; i<5; i++) {
+        delay(DXL_WRITE_DELAY);
+        dxl_write_byte(DXL_BROADCAST, DXL_RETURN_DELAY, 0);
+        delay(DXL_WRITE_DELAY);
+        dxl_write_byte(DXL_BROADCAST, DXL_RETURN_LEVEL, 1);
+    }
+}
+
 void dxl_configure(int id, int newId)
 {
     dxl_write_byte(id, DXL_ID, newId);

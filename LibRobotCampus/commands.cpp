@@ -55,6 +55,7 @@ TERMINAL_COMMAND(start, "Enable all the servos")
 {
     servos_enable_all();
 #if defined(DXL_AVAILABLE)
+    dxl_configure_all();
     dxl_wakeup();
 
     float voltage = dxl_average_voltage();
