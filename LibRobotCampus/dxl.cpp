@@ -69,24 +69,27 @@ int dxl_write_packet(struct dxl_packet *packet, ui8 *buffer)
 {
     unsigned int i;
     unsigned int pos = 0;
+    unsigned int length;
 
     buffer[pos++] = 0xff;
     buffer[pos++] = 0xff;
     buffer[pos++] = 0xfd;
     buffer[pos++] = 0x00;
     buffer[pos++] = packet->id;
-    buffer[pos++] = (packet->parameter_nb+3)&0xff;
-    buffer[pos++] = ((packet->parameter_nb+3)>>8)&0xff;
+    length = pos;
+    pos += 2;
     buffer[pos++] = packet->instruction;
 
     // Stuffing
     int ff = 0;
+    int stuffing = 0;
     for (i=0; i<packet->parameter_nb; i++) {
         if (packet->parameters[i] == 0xfd && ff>=2) {
             ff = 0;
             // 0xff 0xff 0xfd becomes 0xff 0xff 0xfd 0xfd
             buffer[pos++] = 0xfd;
             buffer[pos++] = 0xfd;
+            stuffing++;
         } else {
             if (packet->parameters[i] == 0xff) {
                 ff++;
@@ -96,6 +99,9 @@ int dxl_write_packet(struct dxl_packet *packet, ui8 *buffer)
             buffer[pos++] = packet->parameters[i];
         }
     }
+    
+    buffer[length] = (packet->parameter_nb+3+stuffing)&0xff;
+    buffer[length+1] = ((packet->parameter_nb+3+stuffing)>>8)&0xff;
 
     unsigned short crc16 = update_crc(0, buffer, pos);
     buffer[pos++] = crc16&0xff;
@@ -175,6 +181,42 @@ pc_error:
 #endif
 
 #ifdef DXL_VERSION_2
+static int dxl_unstuff(unsigned char *packet, int n)
+{
+    int pos = 0;
+    int ff = 0;
+    int ff_fd = 0;
+    int k = 0;
+    for (int i=0; i<n; i++) {
+        bool copy = true;
+        if (ff_fd) {
+            ff_fd = 0;
+            if (packet[i] == 0xfd) {
+                k++;
+                copy = false;
+            }   
+        }   
+        if (ff >= 2 && packet[i] == 0xfd) {
+            ff_fd++;
+        }   
+        if (packet[i] == 0xff) {
+            ff++;
+        } else {
+            ff = 0;
+        }   
+     
+        if (k == 0) {
+            pos++;
+        } else {
+            if (copy) {
+                packet[pos++] = packet[i];
+            }   
+        }   
+    }   
+
+    return n-k;
+}
+
 void dxl_packet_push_byte(struct dxl_packet *packet, ui8 b)
 {
     switch (packet->dxl_state) {
@@ -237,10 +279,8 @@ void dxl_packet_push_byte(struct dxl_packet *packet, ui8 b)
 
 pc_ended:
     if (packet->crc16 == 0) {
+        packet->parameter_nb = dxl_unstuff(packet->parameters, packet->parameter_nb);
         packet->process = true;
-    } else {
-        terminal_io()->println("Error!!!");
-        terminal_io()->println((int)packet->crc16);
     }
 
     packet->crc16 = 0;
