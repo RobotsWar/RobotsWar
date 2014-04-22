@@ -157,7 +157,7 @@ void dxl_flush();
 // Torque
 void dxl_disable(ui8 id);
 void dxl_enable(ui8 id, int torque=1023);
-void dxl_wakeup(int steps=25);
+void dxl_wakeup(int steps=12);
 void dxl_disable_all();
 
 // Configure
