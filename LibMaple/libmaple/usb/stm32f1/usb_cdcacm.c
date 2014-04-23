@@ -38,6 +38,7 @@
 #include <libmaple/usb.h>
 #include <libmaple/nvic.h>
 #include <libmaple/delay.h>
+#include <libmaple/iwdg.h>
 
 /* Private headers */
 #include "usb_lib_globals.h"
@@ -47,6 +48,8 @@
 #include "usb_type.h"
 #include "usb_core.h"
 #include "usb_def.h"
+
+volatile static int dtr_negedge = 0;
 
 /******************************************************************************
  ******************************************************************************
@@ -523,6 +526,14 @@ static void vcomDataRxCb(void) {
     usb_copy_from_pma((uint8*)vcomBufferRx, n_unread_bytes,
                       USB_CDCACM_RX_ADDR);
 
+    if (dtr_negedge) {
+        dtr_negedge = 0;
+        if (vcomBufferRx[0] == 'C' && vcomBufferRx[1] == 'M' &&
+            vcomBufferRx[2] == '9' && vcomBufferRx[3] == 'X')
+        {
+            iwdg_init(IWDG_PR_DIV_4 ,10);
+        }
+    }
 
     if (n_unread_bytes == 0) {
         usb_set_ep_rx_count(USB_CDCACM_RX_ENDP, USB_CDCACM_RX_EPSIZE);
@@ -658,6 +669,11 @@ static RESULT usbNoDataSetup(uint8 request) {
             line_dtr_rts = (pInformation->USBwValues.bw.bb0 &
                             (USB_CDCACM_CONTROL_LINE_DTR |
                              USB_CDCACM_CONTROL_LINE_RTS));
+
+            if (line_dtr_rts == 0x2) {
+                dtr_negedge = 1;
+            }
+
             ret = USB_SUCCESS;
             break;
         }
