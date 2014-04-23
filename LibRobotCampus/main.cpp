@@ -4,18 +4,16 @@
 #include <terminal.h>
 #include <main.h>
 #include <dxl.h>
-#include "wifly.h"
+#include "rc.h"
 
 volatile bool flag = false;
 volatile bool isUSB = false;
 
 /**
- * Interruption @50hz
+ * 50hz interrupt
  */
 static void setFlag()
 {
-    // Ne pas écrire de code ici à moins de vraiment
-    // savoir ce que vous faites
     flag = true;
 }
 
@@ -24,52 +22,51 @@ static void setFlag()
  */
 static void internal_setup()
 {
-    // Intialise les servomoteurs
+    // Initializing servos
     servos_init();
-    
-    // Initialise le mode WiFly
-    WiFly.begin(921600);
-    terminal_init(&WiFly);
+   
+    // Initializing RC
+    RC.begin(921600);
+    terminal_init(&RC);
 
-    // Configure la led de la board
+    // Configuring board LED
     pinMode(BOARD_LED_PIN, OUTPUT);
     digitalWrite(BOARD_LED_PIN, LOW);
 
-    // Lance la configuration de l'utilisateur
+    // Runing user setup
     setup();
 
-    // Passage du bus dxl en asynchrone
 #if defined(DXL_AVAILABLE)
+    // Enabling asychronous dynamixel
     dxl_async(true);
 #endif
     
-    // Définit l'interruption @50hz
+    // Enabling 50hz interrupt
     servos_attach_interrupt(setFlag);
 }
 
 /**
- * Boucle principale
+ * Main loop
  */
 static void internal_loop()
 {
-    // Gère la communication du terminal
+    // Handling terminal
     terminal_tick();
 
-    // Si quelque chose est disponible au niveau de l'USB, switch
-    // sur le port
+    // Switching to USB mode
     if (SerialUSB.available() && !isUSB) {
         isUSB = true;
         terminal_init(&SerialUSB);
     }
 
-    // Exécute le code @50hz
+    // Executing 50hz tick
     if (flag) {
         flag = false;
         tick();
         dxl_flush();
     }
 
-    // Appelle la fonction loop de l'utilisateur
+    // Running user loop
     loop();
 }
 

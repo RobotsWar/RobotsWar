@@ -7,16 +7,14 @@
 TERMINAL_PARAMETER_DOUBLE(t, "Temps", 0.0);
 
 /**
- * Vous pouvez écrire du code qui sera exécuté à 
- * l'initialisation ici
+ * Writing initialization code here
  */
 void setup()
 {
 }
 
 /**
- * Foncton appellée à 50hz, c'est ici que vous pouvez mettre
- * à jour les angles moteurs etc.
+ * 50hz function
  */
 void tick()
 {
@@ -24,8 +22,7 @@ void tick()
 }
 
 /**
- * Si vous souhaitez écrire ici du code, cette fonction sera
- * apellée en boucle
+ * Loop method, called everytime
  */
 void loop()
 {
