@@ -5,6 +5,7 @@
 #include "dxl.h"
 #include "rc.h"
 #include "commands.h"
+#include "main.h"
 
 bool started = false;
 
@@ -54,7 +55,10 @@ TERMINAL_COMMAND(forward,
 TERMINAL_COMMAND(start, "Enable all the servos")
 {
     servos_enable_all();
+    started = true;
 #if defined(DXL_AVAILABLE)
+    tick();
+    dxl_flush();
     dxl_configure_all();
     dxl_wakeup();
 
@@ -66,7 +70,6 @@ TERMINAL_COMMAND(start, "Enable all the servos")
     }
 #endif
     terminal_io()->println("OK");
-    started = true;
 }
 
 TERMINAL_COMMAND(stop, "Disable all servos")
