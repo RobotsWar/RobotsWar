@@ -50,7 +50,6 @@ print('* Resetting the board')
 s.setRTS(True)
 s.setDTR(False)
 time.sleep(0.1)
-s.setRTS(False)
 s.write('CM9X')
 s.close()
 time.sleep(1.0);
