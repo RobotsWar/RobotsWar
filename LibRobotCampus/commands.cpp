@@ -52,7 +52,7 @@ TERMINAL_COMMAND(forward,
     }
 }
 
-TERMINAL_COMMAND(start, "Enable all the servos")
+void start()
 {
     servos_enable_all();
     started = true;
@@ -72,7 +72,7 @@ TERMINAL_COMMAND(start, "Enable all the servos")
     terminal_io()->println("OK");
 }
 
-TERMINAL_COMMAND(stop, "Disable all servos")
+void stop()
 {
     servos_disable_all();
 #if defined(DXL_AVAILABLE)
@@ -80,6 +80,25 @@ TERMINAL_COMMAND(stop, "Disable all servos")
 #endif
     terminal_io()->println("OK");
     started = false;
+}
+
+void start_stop()
+{
+    if (!started) {
+        start();
+    } else {
+        stop();
+    }
+}
+
+TERMINAL_COMMAND(start, "Enable all the servos")
+{
+    start();
+}
+
+TERMINAL_COMMAND(stop, "Disable all servos")
+{
+    stop();
 }
 
 #endif

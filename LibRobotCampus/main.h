@@ -8,5 +8,6 @@
 void setup();
 void tick();
 void loop();
+void terminal_to_usb();
 
 #endif

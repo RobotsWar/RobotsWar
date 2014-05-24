@@ -45,6 +45,12 @@ static void internal_setup()
     servos_attach_interrupt(setFlag);
 }
 
+void terminal_to_usb()
+{
+    isUSB = true;
+    terminal_init(&SerialUSB);
+}
+
 /**
  * Main loop
  */
@@ -55,8 +61,7 @@ static void internal_loop()
 
     // Switching to USB mode
     if (SerialUSB.available() && !isUSB) {
-        isUSB = true;
-        terminal_init(&SerialUSB);
+        terminal_to_usb();
     }
 
     // Executing 50hz tick
