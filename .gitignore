@@ -22,3 +22,4 @@ skeleton/*
 !skeleton/Makefile
 !skeleton/build-targets.mk
 !skeleton/main.cpp
+!skeleton/install.sh
