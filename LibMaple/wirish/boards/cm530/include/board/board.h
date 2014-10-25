@@ -96,7 +96,7 @@
 void boardInit(void);
 
 // DXL
-// Not tested
+// Ok
 #define BOARD_DYNAMIXEL_DIR_TX     27 //PB4
 #define BOARD_DYNAMIXEL_DIR_RX     28 //PB5
 #define BOARD_DYNAMIXEL_TX      29 //PB6
