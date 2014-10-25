@@ -55,8 +55,15 @@ typedef void (*voidArgumentFuncPtr)(void *);
 #define __packed __attribute__((__packed__))
 #define __deprecated __attribute__((__deprecated__))
 #define __weak __attribute__((weak))
-#define __always_inline inline __attribute__((always_inline))
+// Allows to use GCC 4.8
+#ifdef __always_inline
+#undef __always_inline
+#endif
+#ifdef __unused
+#undef __unused
+#endif
 #define __unused __attribute__((unused))
+#define __always_inline inline __attribute__((always_inline))
 
 #ifndef NULL
 #define NULL 0
