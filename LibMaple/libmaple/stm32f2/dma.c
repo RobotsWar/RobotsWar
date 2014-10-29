@@ -76,17 +76,17 @@ dma_dev *DMA2 = &dma2;
  */
 
 /* rcc_clk_id of dma_dev which supports src. */
-static __always_inline rcc_clk_id src_clk_id(dma_request_src src) {
+static inline __always_inline rcc_clk_id src_clk_id(dma_request_src src) {
     return (rcc_clk_id)(((uint32)src >> 3) & 0x3F);
 }
 
 /* Bit vector of streams supporting src (e.g., bit 0 set => DMA_S0 support). */
-static __always_inline uint32 src_stream_mask(dma_request_src src) {
+static inline __always_inline uint32 src_stream_mask(dma_request_src src) {
     return ((uint32)src >> 10) & 0xFF;
 }
 
 /* Channel corresponding to src. */
-static __always_inline dma_channel src_channel(dma_request_src src) {
+static inline __always_inline dma_channel src_channel(dma_request_src src) {
     return (dma_channel)(src & 0x7);
 }
 
