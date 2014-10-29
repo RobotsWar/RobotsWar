@@ -1,5 +1,5 @@
-#include <cstdlib>
-#include <cstdio>
+#include <stdlib.h>
+#include <stdio.h>
 #include "function.h"
 
 #define POINT_X(n) points[2*(n)]

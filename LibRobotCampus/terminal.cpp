@@ -329,11 +329,10 @@ void terminal_tick()
             }
         //Special key
         } else if (c == '\x1b') {
-            char code[2];
             while (!terminalIO.io->available());
-            code[0] = terminalIO.io->read();
+            terminalIO.io->read();
             while (!terminalIO.io->available());
-            code[1] = terminalIO.io->read();
+            terminalIO.io->read();
         //Others
         } else {
             terminal_buffer[terminal_pos] = c;

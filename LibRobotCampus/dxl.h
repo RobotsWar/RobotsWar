@@ -1,7 +1,7 @@
 #ifndef DXL_H
 #define DXL_H
 
-#include <cstdlib>
+#include <stdlib.h>
 
 #if !defined(DXL_VERSION_1)
 #define DXL_VERSION_2
