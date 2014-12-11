@@ -306,6 +306,13 @@ TERMINAL_COMMAND(dxl_voltage,
     terminal_io()->println(dxl_average_voltage());
 }
 
+TERMINAL_COMMAND(dxl_p, "Sets the P of the PIDs")
+{
+    if (argc == 1) {
+        dxl_pidp(atoi(argv[0]));
+    }
+}
+
 TERMINAL_COMMAND(dxl_compliance,
         "Sets the compliance slope")
 {

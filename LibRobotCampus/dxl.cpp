@@ -756,6 +756,14 @@ void dxl_compliance_margin(int margin)
     }
 }
 
+void dxl_pidp(int p)
+{
+    for (int id=1; id<DXL_MAX_ID; id++) {
+        dxl_write_byte(id, DXL_PIDP, p);
+        delay(DXL_WRITE_DELAY);
+    }
+}
+
 void dxl_configure_all()
 {
     for (int i=0; i<5; i++) {
