@@ -86,8 +86,13 @@ static void usbSetDeviceAddress(void);
  */
 
 /* FIXME move to Wirish */
+#if defined(BOOTLOADER_maple)
 #define LEAFLABS_ID_VENDOR                0x1EAF
 #define MAPLE_ID_PRODUCT                  0x0004
+#elif defined(BOOTLOADER_robotis)
+#define LEAFLABS_ID_VENDOR                0xFFF1
+#define MAPLE_ID_PRODUCT                  0xFF48
+#endif
 static const usb_descriptor_device usbVcomDescriptor_Device =
     USB_CDCACM_DECLARE_DEV_DESC(LEAFLABS_ID_VENDOR, MAPLE_ID_PRODUCT);
 
