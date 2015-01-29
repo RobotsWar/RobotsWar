@@ -114,7 +114,7 @@ TERMINAL_COMMAND(dxl_init,
         baudrate = atoi(argv[0]);
     }
 
-    terminal_io()->print("Starting dynamixel bus forwarding at ");
+    terminal_io()->print("Starting dynamixel bus at ");
     terminal_io()->print(baudrate);
     terminal_io()->println(" bauds.");
     dxl_init(baudrate);
