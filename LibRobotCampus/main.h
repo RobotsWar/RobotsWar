@@ -9,5 +9,6 @@ void setup();
 void tick();
 void loop();
 void terminal_to_usb();
+void disable_terminal();
 
 #endif

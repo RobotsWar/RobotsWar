@@ -51,17 +51,29 @@ void terminal_to_usb()
     terminal_init(&SerialUSB);
 }
 
+bool terminal_disabled = false;
+
+/**
+ * Disabling terminal
+ */
+void disable_terminal()
+{
+    terminal_disabled = true;
+}
+
 /**
  * Main loop
  */
 static void internal_loop()
 {
-    // Handling terminal
-    terminal_tick();
+    if (!terminal_disabled) {
+        // Handling terminal
+        terminal_tick();
 
-    // Switching to USB mode
-    if (SerialUSB.available() && !isUSB) {
-        terminal_to_usb();
+        // Switching to USB mode
+        if (SerialUSB.available() && !isUSB) {
+            terminal_to_usb();
+        }
     }
 
     // Executing 50hz tick
