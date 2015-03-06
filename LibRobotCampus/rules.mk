@@ -21,6 +21,7 @@ cppSRCS_$(d) += dxl_commands.cpp
 cppSRCS_$(d) += servos_commands.cpp
 cppSRCS_$(d) += function.cpp
 cppSRCS_$(d) += dxl.cpp
+cppSRCS_$(d) += flash_write.cpp
 cppSRCS_$(d) += main.cpp
 
 cppFILES_$(d) := $(cppSRCS_$(d):%=$(d)/%)
