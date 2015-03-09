@@ -48,7 +48,7 @@ static void internal_setup()
 void terminal_to_rc()
 {
     isUSB = false;
-    terminal_ini(&RC);
+    terminal_init(&RC);
 }
 
 void terminal_to_usb()
