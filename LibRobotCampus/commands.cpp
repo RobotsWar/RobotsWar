@@ -19,6 +19,12 @@ TERMINAL_COMMAND(mute, "Mute/Unmute the terminal")
     }
 }
 
+TERMINAL_COMMAND(rc,
+        "Go back to RC mode")
+{
+    terminal_to_rc();
+}
+
 TERMINAL_COMMAND(forward,
         "Go to forward mode, the RC will be forwarded to USB and vice-versa. Usage: forward [baudrate]")
 {
