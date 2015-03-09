@@ -61,6 +61,11 @@ void disable_terminal()
     terminal_disabled = true;
 }
 
+void enable_terminal()
+{
+    terminal_disabled = false;
+}
+
 /**
  * Main loop
  */
