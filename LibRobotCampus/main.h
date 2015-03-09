@@ -8,6 +8,7 @@
 void setup();
 void tick();
 void loop();
+void terminal_to_rc();
 void terminal_to_usb();
 void enable_terminal();
 void disable_terminal();

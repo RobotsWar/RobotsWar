@@ -286,6 +286,15 @@ void terminal_init(Serial *serial)
     terminal_bar.escape = true;
 }
 
+void terminal_reset()
+{
+    terminal_pos = 0;
+    terminal_last_pos = 0;
+    terminal_buffer[0] = '\0';
+    terminal_last_ok = false;
+    terminal_prompt();
+}
+
 /**
  * Ticking the terminal, this will cause lookup for characters 
  * and eventually a call to the process function on new lines

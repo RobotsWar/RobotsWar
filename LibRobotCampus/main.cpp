@@ -45,6 +45,12 @@ static void internal_setup()
     servos_attach_interrupt(setFlag);
 }
 
+void terminal_to_rc()
+{
+    isUSB = false;
+    terminal_ini(&RC);
+}
+
 void terminal_to_usb()
 {
     isUSB = true;
