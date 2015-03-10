@@ -1,4 +1,5 @@
 #include <terminal.h>
+#include <rhock/print.h>
 #include <rhock/memory.h>
 #include <rhock/vm.h>
 #include <rhock/obj.h>
@@ -30,7 +31,7 @@ const uint8_t *rhock_store_page_get(uint32_t n)
 
 void rhock_store_page_write(uint32_t n, uint8_t *data)
 {
-    flash_write((int)&rhock_progs[n*PAGE_SIZE], data, PAGE_SIZE);
+    flash_write((uint32_t)rhock_store_page_get(n), data, PAGE_SIZE);
 }
 
 TERMINAL_COMMAND(store, "Shows the store status")
@@ -38,6 +39,8 @@ TERMINAL_COMMAND(store, "Shows the store status")
     uint32_t k = 0;
     uint32_t used_pages = 0;
     struct rhock_obj obj;
+    terminal_io()->print("Store address: ");
+    terminal_io()->println((uint32_t)rhock_progs);
     
     while (k < rhock_store_pages()) {
         terminal_io()->print("Page ");
@@ -54,6 +57,16 @@ TERMINAL_COMMAND(store, "Shows the store status")
             terminal_io()->print(" (");
             terminal_io()->print(pages);
             terminal_io()->println(" pages)");
+            if (rhock_obj_crc(&obj) != obj.crc16) {
+                terminal_io()->println("BAD CHECKSUM");
+            }
+
+            for (int i=0; i<100; i++) {
+                terminal_io()->print((int)(*(rhock_store_page_get(k)+i)));
+                terminal_io()->print(" ");
+            }
+                terminal_io()->println();
+            
             used_pages += pages;
             k += pages;
         } else {
