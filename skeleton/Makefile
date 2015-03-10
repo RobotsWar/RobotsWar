@@ -150,7 +150,7 @@ endif
 sketch: build-check MSG_INFO $(BUILD_PATH)/$(BOARD).bin
 
 clean:
-	rm -rf build LibMaple LibRhock Rhock
+	rm -rf build LibMaple LibRhoban LibRhock Rhock
 
 mrproper: clean
 	rm -rf doxygen

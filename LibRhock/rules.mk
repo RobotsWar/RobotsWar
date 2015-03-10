@@ -3,13 +3,14 @@ sp              := $(sp).x
 dirstack_$(sp)  := $(d)
 d               := $(dir)
 # This is not really clean, because it relies on the ".c=.o" system
-BUILDDIRS       += $(BUILD_PATH)/$(d) $(BUILD_PATH)/../Rhock/src/rhock/
+RHOCK			:= ../Rhock
+BUILDDIRS       += $(BUILD_PATH)/$(d) $(BUILD_PATH)/$(d)/$(RHOCK)/src/rhock/
 
 # Safe includes for Wirish.
 WIRISH_INCLUDES := -I$(LIB_MAPLE_HOME)/wirish/include -I$(LIB_MAPLE_HOME)/wirish/$(WIRISH_BOARD_PATH)/include
 
 # LibRobotCampus includes
-LIBRHOCK_INCLUDES := -I$(RHOCK)/src
+LIBRHOCK_INCLUDES := -I$(d)/$(RHOCK)/src
 GLOBAL_CFLAGS	  += $(LIBRHOCK_INCLUDES) -DRHOCK
 GLOBAL_CXXFLAGS	  += $(LIBRHOCK_INCLUDES) -DRHOCK
 
@@ -34,7 +35,6 @@ cppSRCS_$(d) := $(RHOCK_SRC)/chain.c \
         $(RHOCK_SRC)/stream.c \
         $(RHOCK_SRC)/vm.c \
 		commands.cpp hal.cpp print.cpp store.cpp
-
 
 cppFILES_$(d) := $(cppSRCS_$(d):%=$(d)/%)
 
