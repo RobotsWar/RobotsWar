@@ -4,7 +4,10 @@
 
 ## Local configuration
 LIB_MAPLE_HOME = ../LibMaple
-LIB_ROBOT_HOME = ../LibRobotCampus
+LIB_RHOBAN_HOME = ../LibRhoban
+LIB_RHOCK_HOME = ../LibRhock
+ENABLE_RHOCK := yes
+RHOCK = ../Rhock
 PATH := $(PATH):$(CURDIR)/../BinutilsArm/bin
 
 ##
@@ -60,8 +63,7 @@ include $(MAKEDIR)/build-templates.mk
 #     #include "wirish.h"
 # It slows compilation noticeably; remove after 1 release.
 TARGET_FLAGS    += -I$(LIBMAPLE_PATH)/include/libmaple \
-                   -I$(WIRISH_PATH)/include/wirish \
-                   -I$(LIB_ROBOT_HOME)/
+                   -I$(WIRISH_PATH)/include/wirish
 TARGET_FLAGS += -I$(LIBRARIES_PATH) # for internal lib. includes, e.g. <Wire/WireBase.h>
 GLOBAL_CFLAGS   := -Os -g3 -gdwarf-2 -nostdlib \
                    -ffunction-sections -fdata-sections \
@@ -95,8 +97,12 @@ ifneq ($(USER_MODULES),)
 LIBMAPLE_MODULES += $(USER_MODULES)
 endif
 
-# Robot Campus Lib
-LIBMAPLE_MODULES += $(LIB_ROBOT_HOME)
+# Rhoban lib
+LIBMAPLE_MODULES += $(LIB_RHOBAN_HOME)
+
+ifeq ($(ENABLE_RHOCK),yes)
+LIBMAPLE_MODULES += $(LIB_RHOCK_HOME)
+endif
 
 # Call each module's rules.mk:
 $(foreach m,$(LIBMAPLE_MODULES),$(eval $(call LIBMAPLE_MODULE_template,$(m))))
@@ -144,7 +150,7 @@ endif
 sketch: build-check MSG_INFO $(BUILD_PATH)/$(BOARD).bin
 
 clean:
-	rm -rf build LibMaple LibRobotCampus
+	rm -rf build LibMaple LibRhock Rhock
 
 mrproper: clean
 	rm -rf doxygen

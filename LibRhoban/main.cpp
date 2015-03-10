@@ -4,6 +4,10 @@
 #include <terminal.h>
 #include <main.h>
 #include <dxl.h>
+#if defined(RHOCK)
+#include <rhock/stream.h>
+#include <rhock/vm.h>
+#endif
 #include "rc.h"
 
 volatile bool flag = false;
@@ -40,6 +44,11 @@ static void internal_setup()
     // Enabling asychronous dynamixel
     dxl_async(true);
 #endif
+
+#if defined(RHOCK)
+    // Initializing rhock
+    rhock_vm_init();
+#endif
     
     // Enabling 50hz interrupt
     servos_attach_interrupt(setFlag);
@@ -72,19 +81,64 @@ void enable_terminal()
     terminal_disabled = false;
 }
 
+#if defined(RHOCK)
+const char rhock_exit[] = "!rhock\r";
+const int rhock_exit_len = 7;
+int rhock_exit_pos = 0;
+bool rhock_mode = false;
+
+bool is_rhock_mode()
+{
+    return rhock_mode;
+}
+
+void rhock_stream_send(uint8_t c)
+{
+    if (rhock_mode) {
+        terminal_io()->write(&c, 1);
+    }
+}
+
+TERMINAL_COMMAND(rhock, "Enter rhock mode")
+{
+    rhock_mode = true;
+}
+#endif
+
 /**
  * Main loop
  */
 static void internal_loop()
 {
-    if (!terminal_disabled) {
+#if defined(RHOCK)
+    if (rhock_mode) {
+        while (terminal_io()->io->available()) {
+            char c = terminal_io()->io->read();
+            if (rhock_exit[rhock_exit_pos] == c) {
+                rhock_exit_pos++;
+                if (rhock_exit_pos >= rhock_exit_len) {
+                    terminal_reset();
+                    rhock_mode = false;
+                }
+            } else {
+                rhock_exit_pos = 0;
+            }
+
+            rhock_stream_recv(c);
+        }
+    }
+
+    rhock_vm_tick();
+#endif
+
+    if (!terminal_disabled && !rhock_mode) {
         // Handling terminal
         terminal_tick();
+    }
 
-        // Switching to USB mode
-        if (SerialUSB.available() && !isUSB) {
-            terminal_to_usb();
-        }
+    // Switching to USB mode
+    if (SerialUSB.available() && !isUSB) {
+        terminal_to_usb();
     }
 
     // Executing 50hz tick

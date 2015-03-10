@@ -7,11 +7,13 @@ BUILDDIRS       += $(BUILD_PATH)/$(d)
 # Safe includes for Wirish.
 WIRISH_INCLUDES := -I$(LIB_MAPLE_HOME)/wirish/include -I$(LIB_MAPLE_HOME)/wirish/$(WIRISH_BOARD_PATH)/include
 
-# LibRobotCampus includes
-LIBROBOT_INCLUDES := -I$(LIB_ROBOT_HOME)
+# Lib rhoban iinclude
+LIBRHOBAN_INCLUDES := -I$(LIB_RHOBAN_HOME)
+GLOBAL_CFLAGS 	   += $(LIBRHOBAN_INCLUDES)
+GLOBAL_CXXFLAGS    += $(LIBRHOBAN_INCLUDES)
 
 # Local flags
-CFLAGS_$(d) = $(LIBMAPLE_INCLUDES) $(WIRISH_INCLUDES) $(LIBROBOT_INCLUDES) -Wall -Werror
+CFLAGS_$(d) = $(LIBMAPLE_INCLUDES) $(WIRISH_INCLUDES) $(LIBRHOBAN_INCLUDES) -Wall -Werror
 
 # Local rules and targets
 cppSRCS_$(d) := terminal.cpp
