@@ -30,8 +30,6 @@ const uint8_t *rhock_store_page_get(uint32_t n)
 
 void rhock_store_page_write(uint32_t n, uint8_t *data)
 {
-    terminal_io()->println("Persisting data!");
-    terminal_io()->println(n);
     flash_write((int)&rhock_progs[n*PAGE_SIZE], data, PAGE_SIZE);
 }
 
