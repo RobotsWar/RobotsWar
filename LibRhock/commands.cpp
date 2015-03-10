@@ -1,3 +1,4 @@
+#include <rhock/memory.h>
 #include <rhock/obj.h>
 #include <rhock/store.h>
 #include <rhock/chain.h>
@@ -154,4 +155,9 @@ TERMINAL_COMMAND(meminfo, "Informations about memory")
     terminal_io()->print(", overhead: ");
     terminal_io()->print(overhead);
     terminal_io()->println();
+}
+
+TERMINAL_COMMAND(mem, "Test")
+{
+    rhock_alloc(16, 1);
 }

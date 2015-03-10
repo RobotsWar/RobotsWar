@@ -102,6 +102,7 @@ void rhock_stream_send(uint8_t c)
 TERMINAL_COMMAND(rhock, "Enter rhock mode")
 {
     rhock_mode = true;
+    terminal_disabled = true;
 }
 #endif
 
@@ -117,8 +118,9 @@ static void internal_loop()
             if (rhock_exit[rhock_exit_pos] == c) {
                 rhock_exit_pos++;
                 if (rhock_exit_pos >= rhock_exit_len) {
-                    terminal_reset();
                     rhock_mode = false;
+                    terminal_disabled = false;
+                    terminal_reset();
                 }
             } else {
                 rhock_exit_pos = 0;
@@ -131,7 +133,7 @@ static void internal_loop()
     rhock_vm_tick();
 #endif
 
-    if (!terminal_disabled && !rhock_mode) {
+    if (!terminal_disabled) {
         // Handling terminal
         terminal_tick();
     }
