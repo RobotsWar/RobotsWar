@@ -1,5 +1,3 @@
-#include <wirish/wirish.h>
-#include <rhock/print.h>
 #include <flash.h>
 #include "flash_write.h"
 
@@ -23,10 +21,12 @@ bool flash_erase_page(unsigned int pageAddr)
     while (FLASH_BASE->SR & FLASH_SR_BSY);
 
     FLASH_BASE->AR = pageAddr;
-    FLASH_BASE->CR |= FLASH_CR_STRT;
+
+    FLASH_BASE->CR |= FLASH_CR_STRT;    
+
     while (FLASH_BASE->SR & FLASH_SR_BSY);
     FLASH_BASE->CR &= ~FLASH_CR_PER;
-    
+
     return true;
 }
 
@@ -62,7 +62,7 @@ void flash_write(unsigned int addr, void *data, unsigned int size)
 {
     unsigned int n, i;
     unsigned char *cdata = (unsigned char*)data;
-
+    
     flash_unlock();
 
     // for each page 
