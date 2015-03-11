@@ -98,6 +98,11 @@ static inline int rb_is_full(ring_buffer *rb) {
         (rb->tail == rb->size && rb->head == 0);
 }
 
+static __attribute__((section(".data"))) inline int rb_is_full_ram(ring_buffer *rb) {
+    return (rb->tail + 1 == rb->head) ||
+        (rb->tail == rb->size && rb->head == 0);
+}
+
 /**
  * @brief Returns true if and only if the ring buffer is empty.
  * @param rb Buffer to test.
@@ -116,11 +121,22 @@ static inline void rb_insert(ring_buffer *rb, uint8 element) {
     rb->tail = (rb->tail == rb->size) ? 0 : rb->tail + 1;
 }
 
+static __attribute__((section(".data"))) inline void rb_insert_ram(ring_buffer *rb, uint8 element) {
+    rb->buf[rb->tail] = element;
+    rb->tail = (rb->tail == rb->size) ? 0 : rb->tail + 1;
+}
+
 /**
  * @brief Remove and return the first item from a ring buffer.
  * @param rb Buffer to remove from, must contain at least one element.
  */
 static inline uint8 rb_remove(ring_buffer *rb) {
+    uint8 ch = rb->buf[rb->head];
+    rb->head = (rb->head == rb->size) ? 0 : rb->head + 1;
+    return ch;
+}
+
+static __attribute__((section(".data"))) inline uint8 rb_remove_ram(ring_buffer *rb) {
     uint8 ch = rb->buf[rb->head];
     rb->head = (rb->head == rb->size) ? 0 : rb->head + 1;
     return ch;
@@ -164,7 +180,7 @@ static inline int rb_safe_insert(ring_buffer *rb, uint8 element) {
  * @return On success, returns -1.  If an element was popped, returns
  *         the popped value.
  */
-static inline int rb_push_insert(ring_buffer *rb, uint8 element) {
+static __always_inline inline int rb_push_insert(ring_buffer *rb, uint8 element) {
     int ret = -1;
     if (rb_is_full(rb)) {
         ret = rb_remove(rb);
@@ -172,6 +188,16 @@ static inline int rb_push_insert(ring_buffer *rb, uint8 element) {
     rb_insert(rb, element);
     return ret;
 }
+
+static __attribute__((section(".data"))) __always_inline inline int rb_push_insert_ram(ring_buffer *rb, uint8 element) {
+    int ret = -1;
+    if (rb_is_full_ram(rb)) {
+        ret = rb_remove_ram(rb);
+    }
+    rb_insert_ram(rb, element);
+    return ret;
+}
+
 
 /**
  * @brief Discard all items from a ring buffer.
