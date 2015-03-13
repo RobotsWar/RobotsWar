@@ -249,14 +249,14 @@ void terminal_process()
 
     strtok_r(terminal_buffer, " ", &saveptr);
     while (
-        (argv[argc] = strtok_r(NULL, " ", &saveptr)) != NULL && 
-        argc < TERMINAL_MAX_ARGUMENTS
+        argc < TERMINAL_MAX_ARGUMENTS &&
+        (argv[argc] = strtok_r(NULL, " ", &saveptr)) != NULL
     ) {
         *(argv[argc]-1) = '\0';
         argc++;
     }
     
-    if (saveptr != NULL) {
+    if (argc == TERMINAL_MAX_ARGUMENTS && saveptr != NULL) {
         *(saveptr - 1) = ' ';
     }
     
