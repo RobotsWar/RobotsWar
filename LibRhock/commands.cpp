@@ -44,7 +44,7 @@ TERMINAL_COMMAND(psj, "Process list (json)")
 {
     rhock_memory_addr addr = rhock_vm_get_objs();
     int i=0;
-    terminal_io()->print("[");
+    terminal_io()->print("psj=[");
     while (addr != RHOCK_LAST) {
         terminal_io()->print("{");
         i++;
