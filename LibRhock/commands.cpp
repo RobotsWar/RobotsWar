@@ -40,6 +40,41 @@ TERMINAL_COMMAND(ps, "Process list")
     }
 }
 
+TERMINAL_COMMAND(psj, "Process list (json)")
+{
+    rhock_memory_addr addr = rhock_vm_get_objs();
+    int i=0;
+    terminal_io()->print("[");
+    while (addr != RHOCK_LAST) {
+        terminal_io()->print("{");
+        i++;
+        struct rhock_obj *obj = rhock_get_obj(addr);
+        terminal_io()->print("\"number\":\"");
+        terminal_io()->print(i);
+        terminal_io()->print("\", \"name\": \"");
+        terminal_io()->print(obj->name);
+        terminal_io()->print("\", \"status\": \"");
+
+        rhock_memory_addr prog = rhock_vm_get_program(obj->id);
+        if (prog != RHOCK_NULL) {
+            struct rhock_program *program = rhock_get_program(prog);
+            if (program->state == RHOCK_PROGRAM_RUNNING) {
+                terminal_io()->print("2");
+            } else {
+                terminal_io()->print("1");
+            }
+        } else {
+            terminal_io()->print("0");
+        }
+        terminal_io()->print("\"}");
+        addr = rhock_chain_next(addr);
+        if (addr != RHOCK_LAST) {
+            terminal_io()->print(",");
+        }
+    }
+    terminal_io()->println("]");
+}
+
 TERMINAL_COMMAND(run, "Runs a program")
 {
     if (argc != 1) {
@@ -53,13 +88,42 @@ TERMINAL_COMMAND(run, "Runs a program")
             if (i == pid) {
                 struct rhock_obj *obj = rhock_get_obj(addr);
                 rhock_memory_addr addr = rhock_vm_get_program(obj->id);
+                terminal_io()->print("Running ");
+                terminal_io()->print(obj->name);
+                terminal_io()->println();
                 if (addr == RHOCK_NULL) {
                     rhock_program_load(obj);
-                    terminal_io()->print("Running ");
+                } else {
+                    rhock_program_run(obj->id);
+                }
+                return;
+            }
+            addr = rhock_chain_next(addr);
+        }
+        terminal_io()->print("Unknown pid: ");
+        terminal_io()->print(pid);
+        terminal_io()->println();
+    }
+}
+
+TERMINAL_COMMAND(freeze, "Freezes a program")
+{
+    if (argc != 1) {
+        terminal_io()->println("Usage: freeze [id]");
+    } else {
+        int pid = atoi(argv[0]);
+        rhock_memory_addr addr = rhock_vm_get_objs();
+        int i=0;
+        while (addr != RHOCK_LAST) {
+            i++;
+            if (i == pid) {
+                struct rhock_obj *obj = rhock_get_obj(addr);
+                rhock_memory_addr addr = rhock_vm_get_program(obj->id);
+                if (addr != RHOCK_NULL) {
+                    terminal_io()->print("Freezing ");
                     terminal_io()->print(obj->name);
                     terminal_io()->println();
-                } else {
-                    terminal_io()->println("Process already running.");
+                    rhock_program_freeze(obj->id);
                 }
                 return;
             }
