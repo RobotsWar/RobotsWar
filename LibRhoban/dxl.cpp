@@ -148,6 +148,9 @@ void dxl_packet_push_byte(struct dxl_packet *packet, ui8 b)
             break;
         case 3:
             packet->parameter_nb = b - 2;
+            if (b < 0 || b >= DXL_MAX_PARAMS) {
+                goto pc_error;
+            }
             break;
         case 4:
             packet->instruction = b;
@@ -241,6 +244,9 @@ void dxl_packet_push_byte(struct dxl_packet *packet, ui8 b)
             break;
         case 5:
             packet->parameter_nb = b;
+            if (b < 0 || b >= DXL_MAX_PARAMS) {
+                goto pc_error;
+            }
             break;
         case 6:
             packet->parameter_nb += (b<<8);
