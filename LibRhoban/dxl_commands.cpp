@@ -106,6 +106,19 @@ TERMINAL_COMMAND(dxl_id,
     }
 }
 
+TERMINAL_COMMAND(dxl_setbaud,
+        "Sets the correct baudrate")
+{
+    if (argc == 1) {
+        int id = atoi(argv[0]);
+        terminal_io()->print("Setting baudrate 10000 to servo ");
+        terminal_io()->println(id);
+        dxl_write_byte(id, DXL_BAUD, 1);
+    } else {
+        terminal_io()->println("Usage: dxl_setbaud [id]");
+    }
+}
+
 TERMINAL_COMMAND(dxl_init,
         "Initializes the dynamixel system")
 {

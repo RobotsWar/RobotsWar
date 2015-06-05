@@ -600,12 +600,20 @@ void dxl_enable(ui8 id, int torque)
 
 int dxl_position_to_value(ui8 id, float position)
 {
+#ifdef DXL_MX28
+    return ((position/360.0)*4096)+2048;
+#else
     return ((position/300.0)*1024)+512;
+#endif
 }
 
 float dxl_value_to_position(ui8 id, int value)
 {
+#ifdef DXL_MX28
+    return ((value-2048)/4096.0)*360.0;
+#else
     return ((value-512)/1024.0)*300.0;
+#endif
 }
 
 float dxl_get_position(ui8 id, bool *success)

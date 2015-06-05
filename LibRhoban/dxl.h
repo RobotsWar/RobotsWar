@@ -30,6 +30,7 @@
 // Registers
 #ifdef DXL_VERSION_1
 #define DXL_ID              0x03
+#define DXL_BAUD            0x04
 #define DXL_RETURN_DELAY    0x05
 #define DXL_RETURN_LEVEL    0x10
 #define DXL_COMPLIANCE_MARGIN_CW 0x1A
@@ -50,6 +51,7 @@
 
 #ifdef DXL_VERSION_2
 #define DXL_ID              0x03
+#define DXL_BAUD            0x04
 #define DXL_RETURN_DELAY    0x05
 #define DXL_RETURN_LEVEL    0x11
 #define DXL_COMPLIANCE_MARGIN_CW 0x1A
