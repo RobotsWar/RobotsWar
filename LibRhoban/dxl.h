@@ -19,10 +19,14 @@
 // Direction pin
 #if defined(BOARD_opencm904)
 #define DXL_DIRECTION  28
+#define DXL_DIRECTION_TX        HIGH
+#define DXL_DIRECTION_RX        LOW
 #define DXL_DEVICE     Serial1
 #define DXL_AVAILABLE
 #elif defined (BOARD_cm900)
 #define DXL_DIRECTION  19
+#define DXL_DIRECTION_TX        HIGH
+#define DXL_DIRECTION_RX        LOW
 #define DXL_DEVICE     Serial1
 #define DXL_AVAILABLE
 #endif

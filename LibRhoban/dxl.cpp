@@ -311,7 +311,7 @@ void dxl_init(int baudrate)
 
     // Direction pins
     pinMode(DXL_DIRECTION, OUTPUT);
-    digitalWrite(DXL_DIRECTION, LOW);
+    digitalWrite(DXL_DIRECTION, DXL_DIRECTION_RX);
 
     DXL_DEVICE.begin(baudrate);
     dxl_disable_all();
@@ -328,12 +328,12 @@ void dxl_write_serial(ui8 *buffer, int n)
     }
 
     // Sending packet
-    digitalWrite(DXL_DIRECTION, HIGH); // TX
+    digitalWrite(DXL_DIRECTION, DXL_DIRECTION_TX); // TX
     asm("nop");
     DXL_DEVICE.write(buffer, n);
     DXL_DEVICE.waitDataToBeSent();
     asm("nop");
-    digitalWrite(DXL_DIRECTION, LOW); // RX
+    digitalWrite(DXL_DIRECTION, DXL_DIRECTION_RX); // RX
 #endif
 }
 
