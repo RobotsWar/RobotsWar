@@ -6,7 +6,7 @@
 LIB_MAPLE_HOME = ../LibMaple
 LIB_RHOBAN_HOME = ../LibRhoban
 LIB_RHOCK_HOME = ../LibRhock
-ENABLE_RHOCK := yes
+ENABLE_RHOCK := no
 RHOCK = ../Rhock
 PATH := $(PATH):$(CURDIR)/../BinutilsArm/bin
 
