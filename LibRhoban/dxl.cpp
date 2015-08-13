@@ -303,11 +303,14 @@ void dxl_init(int baudrate)
 #if defined(DXL_AVAILABLE)
     dxl_timeout = 10000000/baudrate;
     initialized = true;
+
+#if defined(DXL_REMAP)
     afio_remap(AFIO_REMAP_USART1);
 
     // Initializing pins
     gpio_set_mode(GPIOB, 6, GPIO_AF_OUTPUT_PP);
     gpio_set_mode(GPIOB, 7, GPIO_INPUT_FLOATING);
+#endif
 
     // Direction pins
     pinMode(DXL_DIRECTION, OUTPUT);
@@ -334,6 +337,12 @@ void dxl_write_serial(ui8 *buffer, int n)
     DXL_DEVICE.waitDataToBeSent();
     asm("nop");
     digitalWrite(DXL_DIRECTION, DXL_DIRECTION_RX); // RX
+    
+    // Flushing incoming data
+    while (DXL_DEVICE.available()) {
+        char dummy = DXL_DEVICE.read();
+        (void)dummy;
+    }
 #endif
 }
 
@@ -658,7 +667,7 @@ bool dxl_read(ui8 id, ui8 addr, char *output, int size)
 ui8 dxl_read_byte(ui8 id, ui8 addr, bool *success)
 {
     bool dummy;
-    ui8 value;
+    ui8 value = 0;
     success = (success != NULL) ? success : &dummy;
     *success = dxl_read(id, addr, (char*)&value, 1);
     return value;

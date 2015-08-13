@@ -23,11 +23,19 @@
 #define DXL_DIRECTION_RX        LOW
 #define DXL_DEVICE     Serial1
 #define DXL_AVAILABLE
+#define DXL_REMAP
 #elif defined (BOARD_cm900)
 #define DXL_DIRECTION  19
 #define DXL_DIRECTION_TX        HIGH
 #define DXL_DIRECTION_RX        LOW
 #define DXL_DEVICE     Serial1
+#define DXL_AVAILABLE
+#define DXL_REMAP
+#elif defined (BOARD_maple_mini)
+#define DXL_DIRECTION  2
+#define DXL_DIRECTION_TX        LOW
+#define DXL_DIRECTION_RX        HIGH
+#define DXL_DEVICE     Serial3
 #define DXL_AVAILABLE
 #endif
 
